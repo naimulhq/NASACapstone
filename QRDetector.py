@@ -5,6 +5,11 @@ from pyzbar.pyzbar import decode
 # Create a video capture object. Necessary to capture video from webcam. 0 = front camera. 1 for back camera
 cap = cv2.VideoCapture(1)
 
+Green = (36,255,12)
+Red = (0,0,255)
+
+keywords = ['M2 Hex Nut', 'M3X30 Standoff']
+
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -18,8 +23,15 @@ while(True):
         for i in range(len(QRCodes)):
             x,y,w,h = QRCodes[i].rect.left, QRCodes[i].rect.top, QRCodes[i].rect.width, QRCodes[i].rect.height # Get coordinates
             string = (QRCodes[i].data).decode('ASCII') # Get Text Data
-            frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(36,255,12), 1) # Create a rectangle on the frame
-            cv2.putText(frame, string, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2) # Add text with decoded QR Code text.
+
+            if string in keywords:
+                col = Green
+            else:
+                col = Red
+
+            frame = cv2.rectangle(frame,(x,y),(x+w,y+h),col, 1) # Create a rectangle on the frame
+            cv2.putText(frame, string, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9,col, 2) # Add text with decoded QR Code text.
+
         cv2.imshow('frame',frame) # Output image
     else:
         cv2.imshow('frame',frame) # Output image.
