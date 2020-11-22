@@ -17,7 +17,6 @@ class RaspberryPiCam:
     def run_camera(self):
         frame = self.vs.read()
         frame = imutils.resize(frame, width=self.width, height=self.height)
-        cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
             
     def QRDetector(self,frame):
