@@ -1,7 +1,7 @@
 # GO PRO STREAM INSTRUCTIONS
 
 
-## STEP1:
+## STEP 1:
 Install the goprostream package.
 This can be done using the command:
 
