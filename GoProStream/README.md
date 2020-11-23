@@ -14,4 +14,4 @@ For this step, it's essential that the user runs StartStream.py first. This will
 
 ## STEP 3:
 
-Run Test.py. This will allow the user to see what is on the Go Pro. This will be the source code for all the 
+Run Test.py. This will allow the user to see what is on the Go Pro.
