@@ -3,3 +3,4 @@ instructions.db
 .png
 .jpg
 .jpeg
+__pycache__
