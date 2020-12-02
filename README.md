@@ -41,7 +41,7 @@ Nasa Mentors: <br/>
 * QR Code  <br/>
 **Abel Semma**
 * Work with Python GUI frameworks to create the User Interface
-* Work with Edwin and Niauml on the AI/ML training to integrate our systems <br/>
+* Work with Edwin and Naiuml on the AI/ML training to integrate our systems <br/>
 
 Hardware Assembly
 
