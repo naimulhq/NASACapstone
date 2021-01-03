@@ -81,7 +81,7 @@ Now your swap file will automatically be mounted after reboots.  To check the us
 
 * To begin training the model, run the following in the ssd directory:
 ```
-python3 train_ssd.py --dataset-type=oc --data=./ --model-dir=models/<Desired Namre> --batch-size=1 --workers=0 --epochs=1
+python3 train_ssd.py --dataset-type=voc --data=./ --model-dir=models/<Desired Name> --batch-size=1 --workers=0 --epochs=1
 ```
 
 * Once training is complete, we convert our model to .onnx so that we can load it with TensorRT:
@@ -91,3 +91,5 @@ python3 onnx_export.py --model-dir=models/<Desired Name>
 ```
 
 This will save a model called `ssd-mobilenet.onnx` under `TrainingTools/ssd/models`
+
+* Lastly, to create a live stream, just run my-detection.py from src. You might need to change the paths for the models and labels argument.
