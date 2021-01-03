@@ -23,8 +23,14 @@
 
 import jetson.inference
 import jetson.utils
+# Might need to change paths for --model and --labels.
+# If no boxes appear, lower threshold.
 
-net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold=0.5)
+# This net used with custom model 
+#net = jetson.inference.detectNet(argv=['--model=./ssd-mobilenet.onnx','--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.5'])
+
+# This net used with models provided by NVIDIA
+#net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold=0.5)
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
