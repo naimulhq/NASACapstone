@@ -10,7 +10,7 @@ Once it is running, a GUI should pop up. Follow instructions on GUI to download 
 ### 2. Set up training requirements (Only if project built from scratch)
 
 ```
-cd jetson-inference/python/training/detection/ssd
+cd TrainingTools/ssd
 wget https://nvidia.box.com/shared/static/djf5w54rjvpqocsiztzaandq1m3avr7c.pth -O models/mobilenet-v1-ssd-mp-0_675.pth
 pip3 install -v -r requirements.txt
 ```
@@ -77,3 +77,17 @@ Now your swap file will automatically be mounted after reboots.  To check the us
 
 * It is also recommended to diable the GUI since it uses up valuable memory. To disable the GUI, you can press Ctrl + Alt + F3. You will need to login with your username and password once disabling the GUI. Once training is complete, you can press Ctrl + Alt + F1 to return to GUI.
 
+### 6. Training and Conversion
+
+* To begin training the model, run the following in the ssd directory:
+```
+python3 train_ssd.py --dataset-type=oc --data=./ --model-dir=models/<Desired Namre> --batch-size=1 --workers=0 --epochs=1
+```
+
+* Once training is complete, we convert our model to .onnx so that we can load it with TensorRT:
+
+``` bash
+python3 onnx_export.py --model-dir=models/<Desired Name>
+```
+
+This will save a model called `ssd-mobilenet.onnx` under `TrainingTools/ssd/models`
