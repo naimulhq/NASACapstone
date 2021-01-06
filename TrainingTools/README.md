@@ -70,7 +70,7 @@ sudo swapon /mnt/8GB.swap
 Then add the following line to the end of `/etc/fstab` to make the change persistent:
 
 ``` bash
-/mnt/4GB.swap  none  swap  sw 0  0
+/mnt/8GB.swap  none  swap  sw 0  0
 ```
 
 Now your swap file will automatically be mounted after reboots.  To check the usage, run `swapon -s` or `tegrastats`.
@@ -84,6 +84,7 @@ Now your swap file will automatically be mounted after reboots.  To check the us
 python3 train_ssd.py --dataset-type=voc --data=./ --model-dir=models/<Desired Name> --batch-size=1 --workers=0 --epochs=1
 ```
 
+* Before performing the conversion, remove labels.txt from the ssd directory. It is not needed since another labels.txt will be created in the models folder and will cause errors if not deleted.
 * Once training is complete, we convert our model to .onnx so that we can load it with TensorRT:
 
 ``` bash
@@ -93,3 +94,4 @@ python3 onnx_export.py --model-dir=models/<Desired Name>
 This will save a model called `ssd-mobilenet.onnx` under `TrainingTools/ssd/models`
 
 * Lastly, to create a live stream, just run my-detection.py from src. You might need to change the paths for the models and labels argument.
+
