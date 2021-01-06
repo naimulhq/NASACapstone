@@ -9,6 +9,8 @@ Once it is running, a GUI should pop up. Follow instructions on GUI to download 
 ```
 ### 2. Set up training requirements (Only if project built from scratch)
 
+* Make models directory in ssd before continuing with next step.
+
 ```
 cd TrainingTools/ssd
 wget https://nvidia.box.com/shared/static/djf5w54rjvpqocsiztzaandq1m3avr7c.pth -O models/mobilenet-v1-ssd-mp-0_675.pth
