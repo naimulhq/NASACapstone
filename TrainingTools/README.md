@@ -45,8 +45,9 @@ Inside the ssd directory, add the following directories and subdirectories:
 20200917-162447
 ```
 
+* To generate train.txt, put all photos into JPEGImages and run python3 readImage.py
 * JPEGImages contains all the .jpg images from the dataset.
-* labels.txt contains all the labels of the dataset.
+* labels.txt contains all the labels of the dataset. (Labels need to be in alphabetical order and each label goes on seperate line).
 
 ### 4. PascalVOC Format Preprocessing
 
