@@ -21,13 +21,50 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
+# Necessary Imports
 import jetson.inference
 import jetson.utils
+import csv
 import time
 from datetime import datetime
 import os
+from instructionDatabase import instructionDatabase
+
+
+
 # Might need to change paths for --model and --labels.
 # If no boxes appear, lower threshold.
+
+
+# Get instructionDatabase and modify instructions
+# Create Database
+instructionDB = instructionDatabase()
+#instructionDB.deleteAllData() # Delete Instruction Info. Only run once.
+
+# Get info from csv. Only run once. Comment out once .db is generated
+with open("/home/naimulhq/Capstone/src/instructions.csv",'r') as file:
+    reader = csv.reader(file)
+    data = list(reader)
+
+# # Store information into instruction database
+# for i in data:
+#     instructionDB.insertDB(i[0],i[1])
+
+# Get all contents of Database
+endOfDB = False
+instructions = []
+while not endOfDB:
+	endOfDB, instr = instructionDB.getInstruction()
+	instructions.append(instr)
+
+
+
+
+# instructions has all the contents in the csv. instructions is the list of tuples where first element is instruction, second is stage.
+# Make a dictionary where the key is the stage and the value will be a dictionary or list which holds the set of instructions
+ 
+
+
 
 # Get parent directory. Necessary to load model correctly
 
@@ -58,12 +95,17 @@ while display.IsStreaming():
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
 	if(beginTime-endTime > 1):
 		objects = []
+		vertices = []
 		for i in range(len(detections)):
 			objects.append(labels[detections[i].ClassID])
-		print(objects)
+			# Store box vertices in clockwise order
+			bottomLeft = (detections[i].Left, detections[i].Bottom)
+			bottomRight = (detections[i].Right, detections[i].Bottom)
+			topLeft = (detections[i].Left, detections[i].Top)
+			topRight = (detections[i].Right, detections[i].Top)
+			vertices.append((topLeft,topRight,bottomRight,bottomLeft))
 		now = datetime.now()
 		current_time = now.strftime("%H:%M:%S")
-		print(current_time)
 		endTime = time.time()
 		
 	display.Render(img)

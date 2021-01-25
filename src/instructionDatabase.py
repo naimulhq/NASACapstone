@@ -28,10 +28,11 @@ class instructionDatabase:
     def getInstruction(self):
         if(self.count >= self.size):
             print("End of Database.")
+            return True, ""
         else:
             value = self.databaseList[self.count]
             self.count += 1
-            return value
+            return False,value
 
     def printDB(self):
         print(self.databaseList)
@@ -39,21 +40,6 @@ class instructionDatabase:
     def deleteAllData(self):
         self.cur.execute("DELETE FROM instructions")
         self.conn.commit()
-
-# Create Database
-instructionDB = instructionDatabase()
-instructionDB.deleteAllData() # Delete Instruction Info. Only run once.
-
-# Get info from csv. Only run once. Comment out once .db is generated
-with open("/home/naimulhq/Capstone/instructions.csv",'r') as file:
-    reader = csv.reader(file)
-    data = list(reader)
-
-# Store information into instruction database
-for i in data:
-    instructionDB.insertDB(i[0],i[1])
-
-instructionDB.printDB()
 
 
 
