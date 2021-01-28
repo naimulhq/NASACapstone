@@ -31,10 +31,26 @@ from datetime import datetime
 import os
 from instructionDatabase import instructionDatabase
 
+# Ask user for names of parts and stages model. Only for testing purposes.
+dirs = os.listdir('/home')
+decision = input("Just for now, enter 0 for part model and 1 for stage model: ")
+if decision == "0":
+	model_name = input("Enter part model name with extension: ")
+	model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(model_name)
+elif decision == "1":
+	model_name = input("Enter stage model name with extension: ")
+	model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(model_name)
+else:
+	raise Exception("Try again. Enter a number between 0 and 1")
 
 
-# Might need to change paths for --model and --labels.
-# If no boxes appear, lower threshold.
+# Commented out. We will use soon when we run both models simultaneously
+# dirs = os.listdir('/home')
+# part_model_name = input("Enter part model name with extension: ")
+# stage_model_name = input("Enter stage model name with extension: ")
+# dirs = os.listdir('/home')
+# part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
+# stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 
 
 # Get instructionDatabase and modify instructions
@@ -58,17 +74,10 @@ while not endOfDB:
 	endOfDB, instr = instructionDB.getInstruction()
 	instructions.append(instr)
 
-
-
-
 # instructions has all the contents in the csv. instructions is the list of tuples where first element is instruction, second is stage.
 # Make a dictionary where the key is the stage and the value will be a dictionary or list which holds the set of instructions
  
-
-
-
 # Get parent directory. Necessary to load model correctly
-
 
 # Open up labels file for part detection
 f = open("labels.txt","r")
@@ -79,7 +88,8 @@ f.close()
 
 # This net used with Part Detection.
 # Change model directory depending on user. Stores labels in same directory as src
-net = jetson.inference.detectNet(argv=['--model=/home/naimulhq/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx','--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+
+net = jetson.inference.detectNet(argv=['--model='+model_path,'--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
