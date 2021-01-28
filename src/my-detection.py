@@ -25,6 +25,7 @@
 import jetson.inference
 import jetson.utils
 import csv
+import sys
 import time
 from datetime import datetime
 import os
@@ -42,7 +43,7 @@ instructionDB = instructionDatabase()
 #instructionDB.deleteAllData() # Delete Instruction Info. Only run once.
 
 # Get info from csv. Only run once. Comment out once .db is generated
-with open("/home/naimulhq/Capstone/src/instructions.csv",'r') as file:
+with open(os.path.join(sys.path[0], "instructions.csv"),'r') as file:
     reader = csv.reader(file)
     data = list(reader)
 
