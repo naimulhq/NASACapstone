@@ -33,24 +33,11 @@ from instructionDatabase import instructionDatabase
 
 # Ask user for names of parts and stages model. Only for testing purposes.
 dirs = os.listdir('/home')
-decision = input("Just for now, enter 0 for part model and 1 for stage model: ")
-if decision == "0":
-	model_name = input("Enter part model name with extension: ")
-	model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(model_name)
-elif decision == "1":
-	model_name = input("Enter stage model name with extension: ")
-	model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(model_name)
-else:
-	raise Exception("Try again. Enter a number between 0 and 1")
-
-
-# Commented out. We will use soon when we run both models simultaneously
-# dirs = os.listdir('/home')
-# part_model_name = input("Enter part model name with extension: ")
-# stage_model_name = input("Enter stage model name with extension: ")
-# dirs = os.listdir('/home')
-# part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
-# stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
+part_model_name = input("Enter part model name with extension: ")
+stage_model_name = input("Enter stage model name with extension: ")
+dirs = os.listdir('/home')
+part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
+stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 
 
 # Get instructionDatabase and modify instructions
@@ -89,7 +76,8 @@ f.close()
 # This net used with Part Detection.
 # Change model directory depending on user. Stores labels in same directory as src
 
-net = jetson.inference.detectNet(argv=['--model='+model_path,'--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_1.2+2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
@@ -101,8 +89,8 @@ while display.IsStreaming():
 	# Keep Track of Time
 	beginTime = time.time()
 	img = camera.Capture()
-	detections = net.Detect(img) # Holds all the valuable Information
-	
+	detections = part_net.Detect(img) # Holds all the valuable Information
+	stages = stages_net.Detect(img)
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
 	if(beginTime-endTime > 1):
 		objects = []
@@ -120,4 +108,4 @@ while display.IsStreaming():
 		endTime = time.time()
 		
 	display.Render(img)
-	display.SetStatus("Object Detection | Network {:.0f} FPS".format(net.GetNetworkFPS()))
+	display.SetStatus("Object Detection | Network {:.0f} FPS".format(part_net.GetNetworkFPS()))
