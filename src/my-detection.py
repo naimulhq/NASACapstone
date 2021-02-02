@@ -51,8 +51,8 @@ with open(os.path.join(sys.path[0], "instructions.csv"),'r') as file:
     data = list(reader)
 
 # # Store information into instruction database
-# for i in data:
-#     instructionDB.insertDB(i[0],i[1])
+for i in data:
+    instructionDB.insertDB(i[0],i[1])
 
 # Get all contents of Database
 endOfDB = False
@@ -60,6 +60,7 @@ instructions = []
 while not endOfDB:
 	endOfDB, instr = instructionDB.getInstruction()
 	instructions.append(instr)
+print(instructions)
 
 # instructions has all the contents in the csv. instructions is the list of tuples where first element is instruction, second is stage.
 # Make a dictionary where the key is the stage and the value will be a dictionary or list which holds the set of instructions
@@ -67,7 +68,7 @@ while not endOfDB:
 # Get parent directory. Necessary to load model correctly
 
 # Open up labels file for part detection
-f = open("labels.txt","r")
+f = open("labels_parts.txt","r")
 labels = []
 for i in f.readlines():
 	labels.append(i.strip('\n'))
@@ -76,7 +77,7 @@ f.close()
 # This net used with Part Detection.
 # Change model directory depending on user. Stores labels in same directory as src
 
-part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_1.2+2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
@@ -84,6 +85,14 @@ display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 # Add another net, camera, and display for Stage Detection
 beginTime = time.time()
 endTime = 0
+currentInstr, stageCount = 0, 0
+
+# Open up labels file for stage detection
+f = open("labels_stages.txt","r")
+labels_stages = []
+for i in f.readlines():
+	labels_stages.append(i.strip('\n'))
+f.close()
 
 while display.IsStreaming():
 	# Keep Track of Time
@@ -91,6 +100,16 @@ while display.IsStreaming():
 	img = camera.Capture()
 	detections = part_net.Detect(img) # Holds all the valuable Information
 	stages = stages_net.Detect(img)
+	# if buttonPressed:	# user has pressed 'Stage Complete' button
+	# 	if labels_stages[stages.ClassID] == instr[currentInstr][1]:
+	#		stageCount += 1
+	# 	else:
+	#		stageCount = 0
+	#		buttonPressed = False
+	#	if stageCount == 48:
+	#		currentInstr += 1
+	#		buttonPressed = False
+	#		# add timestamp of stage complete to datalog
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
 	if(beginTime-endTime > 1):
 		objects = []
@@ -106,6 +125,6 @@ while display.IsStreaming():
 		now = datetime.now()
 		current_time = now.strftime("%H:%M:%S")
 		endTime = time.time()
-		
+	
 	display.Render(img)
 	display.SetStatus("Object Detection | Network {:.0f} FPS".format(part_net.GetNetworkFPS()))
