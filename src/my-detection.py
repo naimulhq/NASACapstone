@@ -29,7 +29,6 @@ import sys
 import time
 from datetime import datetime
 import os
-from instructionDatabase import instructionDatabase
 
 # Ask user for names of parts and stages model. Only for testing purposes.
 dirs = os.listdir('/home')
@@ -42,32 +41,12 @@ part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-m
 stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-1.2+2.1-OB-1.31.onnx'
 
 
-# Get instructionDatabase and modify instructions
-# Create Database
-instructionDB = instructionDatabase()
-#instructionDB.deleteAllData() # Delete Instruction Info. Only run once.
-
 # Get info from csv. Only run once. Comment out once .db is generated
 with open(os.path.join(sys.path[0], "instructions.csv"),'r') as file:
     reader = csv.reader(file)
-    data = list(reader)
+    instructions = list(reader)
 
-# # Store information into instruction database
-for i in data:
-    instructionDB.insertDB(i[0],i[1])
-
-# Get all contents of Database
-endOfDB = False
-instructions = []
-while not endOfDB:
-	endOfDB, instr = instructionDB.getInstruction()
-	instructions.append(instr)
 print(instructions)
-
-# instructions has all the contents in the csv. instructions is the list of tuples where first element is instruction, second is stage.
-# Make a dictionary where the key is the stage and the value will be a dictionary or list which holds the set of instructions
- 
-# Get parent directory. Necessary to load model correctly
 
 # Open up labels file for part detection
 f = open("labels_parts.txt","r")
@@ -100,7 +79,14 @@ buttonPressed = True
 
 print(instructions[0][0], instructions[0][1])
 
-while display.IsStreaming():
+# Lists will hold information for duration of procedure
+objects = []
+vertices = []
+PartTimeStamps = []
+StageName = []
+StageTimeStamps = []
+
+while display.IsStreaming() and instructions[currentInstr][1] != "Stage 2.2":
 	# Keep Track of Time
 	beginTime = time.time()
 	img = camera.Capture()
@@ -118,14 +104,16 @@ while display.IsStreaming():
 			stageCount = 0
 	#		buttonPressed = False
 		if stageCount == 48:
+			StageName.append(instructions[currentInstr][1])
+			now = datetime.now()
+			current_time = now.strftime("%H:%M:%S")
+			StageTimeStamps.append(current_time)
 			currentInstr += 1
 			print(instructions[currentInstr][0], instructions[currentInstr][1])
 			#buttonPressed = False
 	#		# add timestamp of stage complete to datalog
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
 	if(beginTime-endTime > 1):
-		objects = []
-		vertices = []
 		for i in range(len(detections)):
 			objects.append(labels[detections[i].ClassID])
 			# Store box vertices in clockwise order
@@ -136,7 +124,32 @@ while display.IsStreaming():
 			vertices.append((topLeft,topRight,bottomRight,bottomLeft))
 		now = datetime.now()
 		current_time = now.strftime("%H:%M:%S")
+		PartTimeStamps.append(current_time)
 		endTime = time.time()
 	
 	display.Render(img)
 	display.SetStatus("Object Detection | Network {:.0f} FPS".format(part_net.GetNetworkFPS()))
+
+
+# Create two csv files: one will hold information about parts and other will hold information about procedure
+print("Success: Procedure Complete!")
+
+print("Writing Information into CSV Files ...")
+
+with open('Stages.csv',mode='w') as stages_file:
+	stages_file_writer = csv.writer(stages_file,delimiter=',')
+
+	stages_file_writer.writerow(['Stage Completed', 'Time Completed'])
+
+	for i in range(len(StageName)):
+		stages_file_writer.writerow([StageName[i],StageTimeStamps[i]])
+
+with open('Parts.csv',mode='w') as parts_file:
+	parts_file_writer = csv.writer(parts_file,delimiter=',')
+
+	parts_file_writer.writerow(['Object Name', 'Top Left Coordinate', 'Top Right Coordinate', 'Bottom Right Coordinate', 'Bottom Left Coordinate', 'Time Stamped'])
+
+	for i in range(len(objects)):
+		parts_file_writer.writerow([objects[i], vertices[i][0],vertices[i][1],vertices[i][2],vertices[i][3], PartTimeStamps[i]])
+
+print("Writing Complete")
