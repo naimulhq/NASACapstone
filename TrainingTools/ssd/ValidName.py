@@ -4,7 +4,7 @@ import time
 
 ## Enter directory where all xml files are in.
 
-directory = "C:\\Users\\18186\\Downloads\\xmls\\xmls";
+directory = "/home/oles/Documents/Capstone/TrainingTools/ssd/Annotations/";
 
 for _,_,files in os.walk(directory):
     pass
@@ -14,7 +14,8 @@ labels = ['Motor','Top Plate', 'Board', 'Bottom Plate', 'F2 Bracket', 'F3 Bracke
     'Stage 2.2', 'Stage 3.2', 'Stage 4.1', 'Stage 4.3', 'Stage 5.1', 'Stage 5.2', 'Stage 5.6']
 
 for f in files:
-    my_xml = minidom.parse(directory+'\\'+f)
+    my_xml = minidom.parse(directory+f)
+    print(f)
     objects = my_xml.getElementsByTagName('object')
     for obj in objects:
         name = obj.getElementsByTagName('name')

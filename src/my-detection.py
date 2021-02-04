@@ -33,11 +33,13 @@ from instructionDatabase import instructionDatabase
 
 # Ask user for names of parts and stages model. Only for testing purposes.
 dirs = os.listdir('/home')
-part_model_name = input("Enter part model name with extension: ")
-stage_model_name = input("Enter stage model name with extension: ")
+#part_model_name = input("Enter part model name with extension: ")
+#stage_model_name = input("Enter stage model name with extension: ")
 dirs = os.listdir('/home')
-part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
+#part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
+#stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
+part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
+stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-1.2+2.1-OB-1.31.onnx'
 
 
 # Get instructionDatabase and modify instructions
@@ -78,7 +80,7 @@ f.close()
 # Change model directory depending on user. Stores labels in same directory as src
 
 part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
-stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_1.2+2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
@@ -94,21 +96,31 @@ for i in f.readlines():
 	labels_stages.append(i.strip('\n'))
 f.close()
 
+buttonPressed = True
+
+print(instructions[0][0], instructions[0][1])
+
 while display.IsStreaming():
 	# Keep Track of Time
 	beginTime = time.time()
 	img = camera.Capture()
 	detections = part_net.Detect(img) # Holds all the valuable Information
 	stages = stages_net.Detect(img)
-	# if buttonPressed:	# user has pressed 'Stage Complete' button
-	# 	if labels_stages[stages.ClassID] == instr[currentInstr][1]:
-	#		stageCount += 1
-	# 	else:
-	#		stageCount = 0
+	#if len(stages) != 0:
+	#	print(instructions[currentInstr][0])
+	#	print(instructions[currentInstr][1])
+	if buttonPressed and len(stages) != 0:	# user has pressed 'Stage Complete' button
+		if labels_stages[stages[0].ClassID] == instructions[currentInstr][1]:
+			#print("stageCount increased")
+			stageCount += 1
+		else:
+			#print("stageCount = 0")
+			stageCount = 0
 	#		buttonPressed = False
-	#	if stageCount == 48:
-	#		currentInstr += 1
-	#		buttonPressed = False
+		if stageCount == 48:
+			currentInstr += 1
+			print(instructions[currentInstr][0], instructions[currentInstr][1])
+			#buttonPressed = False
 	#		# add timestamp of stage complete to datalog
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
 	if(beginTime-endTime > 1):
