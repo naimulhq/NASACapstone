@@ -38,7 +38,7 @@ dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-1.2+2.1-OB-1.31.onnx'
+stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-ALL-OB-2.19.onnx'
 
 
 # Get info from csv. Only run once. Comment out once .db is generated
@@ -86,7 +86,7 @@ PartTimeStamps = []
 StageName = []
 StageTimeStamps = []
 
-while display.IsStreaming() and instructions[currentInstr][1] != "Stage 2.2":
+while display.IsStreaming():
 	# Keep Track of Time
 	beginTime = time.time()
 	img = camera.Capture()
