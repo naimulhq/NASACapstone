@@ -38,7 +38,10 @@ dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-ALL-OB-2.19.onnx'
+stage_model_path = list()
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-1.2+2.1-OB-1.31.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-4.1+4.3-OB-1.79.onnx')
+print("edWhine")
 
 
 # Get info from csv. Only run once. Comment out once .db is generated
@@ -59,7 +62,11 @@ f.close()
 # Change model directory depending on user. Stores labels in same directory as src
 
 part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
-stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
+stages_net = []
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[0],'--labels=./labels_1.2+2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[1],'--labels=./labels_4.1+4.3.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+print("edWINE")
+exit()
 camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
