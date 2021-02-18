@@ -39,8 +39,14 @@ dirs = os.listdir('/home')
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
 stage_model_path = list()
-stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-1.2+2.1-OB-1.31.onnx')
-stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-4.1+4.3-OB-1.79.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_1.2.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_2.1.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_2.2.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_3.2.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_4.1.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_4.3.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_5.1.onnx')
+stage_model_path.append('/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stage_5.2.onnx')
 print("edWhine")
 
 
@@ -63,11 +69,18 @@ f.close()
 
 part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 stages_net = []
-stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[0],'--labels=./labels_1.2+2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
-stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[1],'--labels=./labels_4.1+4.3.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[0],'--labels=./labels_1.2.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[1],'--labels=./labels_2.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[2],'--labels=./labels_2.2.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[3],'--labels=./labels_3.2.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[4],'--labels=./labels_4.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[5],'--labels=./labels_4.3.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[6],'--labels=./labels_5.1.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
+stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[7],'--labels=./labels_5.2.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
 print("edWINE")
-exit()
-camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
+#exit()
+#camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
+camera = jetson.utils.videoSource("/dev/video0")      # For EDWHINE YESSSS DATS MEE'/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
 # Add another net, camera, and display for Stage Detection
@@ -98,7 +111,7 @@ while display.IsStreaming():
 	beginTime = time.time()
 	img = camera.Capture()
 	detections = part_net.Detect(img) # Holds all the valuable Information
-	stages = stages_net.Detect(img)
+	stages = stages_net[currentInstr].Detect(img)
 	#if len(stages) != 0:
 	#	print(instructions[currentInstr][0])
 	#	print(instructions[currentInstr][1])
@@ -117,10 +130,10 @@ while display.IsStreaming():
 			StageTimeStamps.append(current_time)
 			currentInstr += 1
 			print(instructions[currentInstr][0], instructions[currentInstr][1])
-			userInput = input("Next stage?")
-			if userInput == "y":
-				currentInstr += 1
-				print(instructions[currentInstr][0], instructions[currentInstr][1])
+			#userInput = input("Next stage?")
+			#if userInput == "y":
+			#	currentInstr += 1
+			#	print(instructions[currentInstr][0], instructions[currentInstr][1])
 			#buttonPressed = False
 	#		# add timestamp of stage complete to datalog
 	# If difference greater than log time desired in seconds, log the data. Currently, logging data every five seconds
