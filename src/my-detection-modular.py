@@ -79,8 +79,8 @@ stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[6
 stages_net.append(jetson.inference.detectNet(argv=['--model='+stage_model_path[7],'--labels=./labels_5.2.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8']))
 print("edWINE")
 #exit()
-#camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
-camera = jetson.utils.videoSource("/dev/video0")      # For EDWHINE YESSSS DATS MEE'/dev/video0' for V4L2
+camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
+#camera = jetson.utils.videoSource("/dev/video0")      # For EDWHINE YESSSS DATS MEE'/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
 # Add another net, camera, and display for Stage Detection

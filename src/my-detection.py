@@ -38,7 +38,7 @@ dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/ssd-mobilenet-ALL-OB-2.19.onnx'
+stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stages_1.2+2.1+2.2.onnx'
 
 
 # Get info from csv. Only run once. Comment out once .db is generated

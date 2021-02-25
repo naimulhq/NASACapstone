@@ -2,9 +2,3 @@ BACKGROUND
 Stage 1.2
 Stage 2.1
 Stage 2.2
-Stage 3.2
-Stage 4.1
-Stage 4.3
-Stage 5.1
-Stage 5.2
-Stage 5.6
