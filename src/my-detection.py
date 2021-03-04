@@ -38,7 +38,7 @@ dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
 part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/Stages_1.2+2.1+2.2.onnx'
+stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
 
 # Get info from csv. Only run once. Comment out once .db is generated
@@ -87,6 +87,8 @@ StageName = []
 StageTimeStamps = []
 
 while display.IsStreaming():
+	if currentInstruction >= len(instructions):	# end program if all instructions have been passed through
+		break
 	# Keep Track of Time
 	beginTime = time.time()
 	img = camera.Capture()
@@ -110,9 +112,9 @@ while display.IsStreaming():
 			StageTimeStamps.append(current_time)
 			currentInstr += 1
 			print(instructions[currentInstr][0], instructions[currentInstr][1])
-			userInput = input("Next stage?")
-			if userInput == "y":
-				currentInstr += 1
+			userInput = int(input("Skip how many stages? (0-7) "))
+			currentInstr += userInput
+			if userInput != 0:
 				print(instructions[currentInstr][0], instructions[currentInstr][1])
 			#buttonPressed = False
 	#		# add timestamp of stage complete to datalog
