@@ -1,4 +1,0 @@
-BACKGROUND
-Board
-F2 Bracket
-F3 Bracket
