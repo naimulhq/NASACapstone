@@ -87,7 +87,7 @@ StageName = []
 StageTimeStamps = []
 
 while display.IsStreaming():
-	if currentInstruction >= len(instructions):	# end program if all instructions have been passed through
+	if currentInstr >= len(instructions):	# end program if all instructions have been passed through
 		break
 	# Keep Track of Time
 	beginTime = time.time()
