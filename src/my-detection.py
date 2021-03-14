@@ -37,7 +37,7 @@ dirs = os.listdir('/home')
 dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
-part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/ssd-mobilenet-2.03.onnx'
+part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
 stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
 
@@ -65,6 +65,7 @@ display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
 # Add another net, camera, and display for Stage Detection
 beginTime = time.time()
+procedureTime = time.time()
 endTime = 0
 currentInstr, stageCount = 0, 0
 
@@ -85,6 +86,9 @@ vertices = []
 PartTimeStamps = []
 StageName = []
 StageTimeStamps = []
+incorrectValidation = []
+missedValidations = 0
+
 
 while display.IsStreaming():
 	if currentInstr >= len(instructions):	# end program if all instructions have been passed through
@@ -104,9 +108,12 @@ while display.IsStreaming():
 		else:
 			#print("stageCount = 0")
 			stageCount = 0
+			missedValidations += 1
 	#		buttonPressed = False
 		if stageCount == 48:
 			StageName.append(instructions[currentInstr][1])
+			incorrectValidation.append(missedValidations)
+			missedValidations = 0
 			now = datetime.now()
 			current_time = now.strftime("%H:%M:%S")
 			StageTimeStamps.append(current_time)
@@ -145,10 +152,10 @@ print("Writing Information into CSV Files ...")
 with open('Stages.csv',mode='w') as stages_file:
 	stages_file_writer = csv.writer(stages_file,delimiter=',')
 
-	stages_file_writer.writerow(['Stage Completed', 'Time Completed'])
+	stages_file_writer.writerow(['Stage Completed', 'Time Completed', 'Missed Validations'])
 
 	for i in range(len(StageName)):
-		stages_file_writer.writerow([StageName[i],StageTimeStamps[i]])
+		stages_file_writer.writerow([StageName[i],StageTimeStamps[i],incorrectValidation[i]])
 
 with open('Parts.csv',mode='w') as parts_file:
 	parts_file_writer = csv.writer(parts_file,delimiter=',')
