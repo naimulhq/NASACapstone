@@ -3,15 +3,22 @@
 		cols:2
 		rows:2
 		size: root.width, root.height
-		GridLayout:
+		GridLayout: # Tope Left - Camera Feed
 			cols:1
 			size_hint_y:None 
 			height:root.height*3/4
 			size_hint_x:None
 			width:root.width*3/4
-			Label:
-				text: "Camera Feed"
-		GridLayout:
+			# Label:
+			# 	text: "Camera Feed"
+			KivyCamera:
+            	id: surgery_video
+            	# resolution: (3840, 2160)
+            	allow_stretch: True
+            	size_hint: 0.77, 0.84
+            	pos_hint: {"x":0.01, "y":0.15}
+            	#opacity: 1 if root.camIsShown else 0	
+		GridLayout: # Top Rgith - Buttons
 			rows:3
 			size_hint_y:None 
 			height:root.height*3/4
@@ -20,27 +27,40 @@
 
 			Button:
 				text: "Previous"
-				on_press: root.pressed_previous()
+				on_press: root.pressed_previous(bottomleft)
          
 			Button:
 				text: "Validate"
-				on_press: root.pressed_validate()
+				on_press: root.pressed_validate(bottomleft)
         			 
 			Button:
 				text: "Forward"
-				on_press: root.pressed_forward()
+				on_press: root.pressed_forward(bottomleft)
         			 
-		GridLayout:
-
+		GridLayout: # Bottom Left - Text output
 			cols:1
 			size_hint_y:None 
 			height:root.height/4
 			size_hint_x:None
 			width:root.width*3/4
 			Label:
-				text: "Text Output"
+				id:bottomleft
+				color: (0,0,0,1)
+				text_size: self.size
+				halign: 'left'
+    			valign: 'bottom'
+			# MDTextFieldRect:
+    		# 	#hint_text: "Fill mode"
+    		# 	mode: "fill"
+			# 	size_hint_y:None 
+			# 	height:root.height/4
+			# 	size_hint_x:None
+			# 	width:root.width*3/4
+    		# 	fill_color: 0, 0, 0, .4
+			# Label:
+			# 	text: "Text Output"
 
-		GridLayout:
+		GridLayout: # Bottom right - Logo
 			cols:1
 			size_hint_y:None 
 			height:root.height/4
