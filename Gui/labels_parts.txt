@@ -1,0 +1,10 @@
+BACKGROUND
+Board
+Bottom Plate
+F2 Bracket
+F3 Bracket
+M3X15 Standoff
+M3X30 Standoff
+Motor
+Mounting Plate
+Top Plate

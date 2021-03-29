@@ -27,36 +27,15 @@ from kivy.uix.image import Image
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.textfield import MDTextFieldRect
 import cv2
-#Using KV
+import jetson.inference
+import jetson.utils
+import csv
+import sys
+import time
+from datetime import datetime
 
-########################################################Use this for pi Cam
-def gstreamer_pipeline(
-    capture_width=1280,
-    capture_height=720,
-    display_width=1280,
-    display_height=720,
-    framerate=20,
-    flip_method=2,
-):
-    return (
-        "nvarguscamerasrc ! "
-        "video/x-raw(memory:NVMM), "
-        "width=(int)%d, height=(int)%d, "
-        "format=(string)NV12, framerate=(fraction)%d/1 ! "
-        "nvvidconv flip-method=%d ! "
-        "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
-        "videoconvert ! "
-        "video/x-raw, format=(string)BGR ! appsink"
-        % (
-            capture_width,
-            capture_height,
-            framerate,
-            flip_method,
-            display_width,
-            display_height,
-        )
-    )
-############################################################################3
+
+#Using KV
 class MyGrid(Widget):
 	def print_button_text(self,label):
 		label.text += "poop"
@@ -82,22 +61,36 @@ class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         # self.capture = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
-        self.capture = cv2.VideoCapture(0)# EDWHINE YES DATS ME
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        # Ask user for names of parts and stages model. Only for testing purposes.
+        dirs = os.listdir('/home')
+        #part_model_name = input("Enter part model name with extension: ")
+        #stage_model_name = input("Enter stage model name with extension: ")
+        dirs = os.listdir('/home')
+        #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
+        #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
+        part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
+        stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
+
+
+        # This net used with Part Detection.
+        # Change model directory depending on user. Stores labels in same directory as src
+
+        self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
+        self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
+        self.camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for Edwin
+        #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
-        print("KivyCam set")
+
     def update(self, dt):
-        ret, frame = self.capture.read()
-        if ret:
-            # convert it to texture
-            buf1 = cv2.flip(frame, 0)
-            buf = buf1.tostring()
-            image_texture = Texture.create(
-                size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-            # display image from the texture
-            self.texture = image_texture
+        img = self.camera.Capture()
+        detections = self.part_net.Detect(img) # Holds all the valuable Information
+        stages = self.stages_net.Detect(img)
+        array = jetson.utils.cudaToNumpy(img)
+        buf1 = cv2.flip(array,0)
+        buf = buf1.tostring()
+        image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='bgr')
+        image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
+        self.texture = image_texture
 
 if __name__ == "__main__":
 	Project_Argus().run()
