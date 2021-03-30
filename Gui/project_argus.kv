@@ -26,7 +26,7 @@
 			width:root.width/4
 
 			Button:
-				text: "Previous"
+				text: "Return to Main Menu"
 				
          
 			Button:
@@ -71,5 +71,68 @@
 				source: "project_argus.png"
 
 <ValidateScreen>
-	Label:
-		text: "Validate Screen"
+	GridLayout:
+		cols:2
+		rows:2
+		size: root.width, root.height
+		GridLayout: # Tope Left - Camera Feed
+			cols:1
+			size_hint_y:None 
+			height:root.height*3/4
+			size_hint_x:None
+			width:root.width*3/4
+			Label:
+				text: "Camera Feed"
+			
+		GridLayout:
+			rows:3
+			size_hint_y:None 
+			height:root.height*3/4
+			size_hint_x:None
+			width:root.width/4
+
+			Button:
+				text: "Return to Procedure"
+				on_press: root.manager.current = 'procedureScreen'
+				
+         
+			Button:
+				text: "Begin Validation"
+				on_press: root.manager.current = 'validateScreen'
+        			 
+			Button:
+				text: "Quit Procedure"
+				
+        			 
+		GridLayout: # Bottom Left - Text output
+			cols:1
+			size_hint_y:None 
+			height:root.height/4
+			size_hint_x:None
+			width:root.width*3/4
+			Label:
+				id:bottomleft
+				color: (0,0,0,1)
+				text_size: self.size
+				halign: 'left'
+    			valign: 'bottom'
+			# MDTextFieldRect:
+    		# 	#hint_text: "Fill mode"
+    		# 	mode: "fill"
+			# 	size_hint_y:None 
+			# 	height:root.height/4
+			# 	size_hint_x:None
+			# 	width:root.width*3/4
+    		# 	fill_color: 0, 0, 0, .4
+			# Label:
+			# 	text: "Text Output"
+
+		GridLayout: # Bottom right - Logo
+			cols:1
+			size_hint_y:None 
+			height:root.height/4
+			size_hint_x:None
+			width:root.width/4
+			Image:
+				id: argus_image
+				source: "project_argus.png"

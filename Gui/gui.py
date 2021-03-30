@@ -66,6 +66,7 @@ class KivyCamera(Image):
         stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
 
+
         # This net used with Part Detection.
         # Change model directory depending on user. Stores labels in same directory as src
 
