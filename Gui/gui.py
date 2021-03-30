@@ -23,7 +23,7 @@ from kivy.clock import Clock
 from kivy.core.camera import Camera
 from kivy.graphics.texture import Texture
 from kivy.uix.image import Image
-
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.textfield import MDTextFieldRect
 import cv2
@@ -35,27 +35,21 @@ import time
 from datetime import datetime
 
 
-#Using KV
-class MyGrid(Widget):
-	def print_button_text(self,label):
-		label.text += "poop"
-		#instance.text
 
-	def pressed_validate(self,label):
-		label.text += "Validate\n"
+class ProcedureScreen(Screen):
+    pass
 
-
-	def pressed_forward(self,label):
-		label.text += "Forward\n"
-
-	def pressed_previous(self,label):
-		label.text += "Previous\n"
-
+class ValidateScreen(Screen):
+    pass
 	
 
 class Project_Argus(MDApp):
-	def build(self):
-		return MyGrid()
+    def build(self):
+        sm = ScreenManager()
+        sm.add_widget(ProcedureScreen(name='procedureScreen'))
+        sm.add_widget(ValidateScreen(name='validateScreen'))
+        return sm
+
 
 class KivyCamera(Image):
     def __init__(self, **kwargs):

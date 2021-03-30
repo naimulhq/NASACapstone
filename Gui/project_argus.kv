@@ -1,4 +1,4 @@
-<MyGrid>
+<ProcedureScreen>
 	GridLayout:
 		cols:2
 		rows:2
@@ -27,15 +27,15 @@
 
 			Button:
 				text: "Previous"
-				on_press: root.pressed_previous(bottomleft)
+				
          
 			Button:
 				text: "Validate"
-				on_press: root.pressed_validate(bottomleft)
+				on_press: root.manager.current = 'validateScreen'
         			 
 			Button:
 				text: "Forward"
-				on_press: root.pressed_forward(bottomleft)
+				
         			 
 		GridLayout: # Bottom Left - Text output
 			cols:1
@@ -70,3 +70,6 @@
 				id: argus_image
 				source: "project_argus.png"
 
+<ValidateScreen>
+	Label:
+		text: "Validate Screen"
