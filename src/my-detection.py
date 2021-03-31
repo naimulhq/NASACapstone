@@ -37,8 +37,8 @@ dirs = os.listdir('/home')
 dirs = os.listdir('/home')
 #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
 #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
-part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
-stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
+part_model_path = '/home/' + 'rishit/'+ 'Capstone/models/PartDetection/All_Parts.onnx'
+stage_model_path = '/home/'+ 'rishit/' + '/Capstone/models/Stages/All_Stages.onnx'
 
 
 # Get info from csv. Only run once. Comment out once .db is generated
@@ -60,7 +60,8 @@ f.close()
 
 part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
 stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.8'])
-camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
+
+camera = jetson.utils.videoSource("/dev/video0")      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
 # Add another net, camera, and display for Stage Detection
@@ -90,7 +91,8 @@ incorrectValidation = []
 missedValidations = 0
 
 
-while display.IsStreaming():
+#while display.IsStreaming():
+while True:
 	if currentInstr >= len(instructions):	# end program if all instructions have been passed through
 		break
 	# Keep Track of Time
@@ -142,6 +144,8 @@ while display.IsStreaming():
 	
 	display.Render(img)
 	display.SetStatus("Object Detection | Network {:.0f} FPS".format(part_net.GetNetworkFPS()))
+	if not camera.IsStreaming() or not display.IsStreaming():
+		break
 
 
 # Create two csv files: one will hold information about parts and other will hold information about procedure
