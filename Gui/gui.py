@@ -65,14 +65,16 @@ class KivyCamera(Image):
         part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
         stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
-
-
+	#os.system("sudo modprobe v4l2loopback") for Rishit
+	#os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
+	time.sleep(5)
         # This net used with Part Detection.
         # Change model directory depending on user. Stores labels in same directory as src
 
         self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
         self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
-        self.camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for Edwin
+        self.camera = jetson.utils.videoSource("csi://0") 
+	#self.camera = jetson.utils.videoSource("/dev/video1")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
 
