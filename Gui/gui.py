@@ -45,8 +45,9 @@ class MainMenu(Screen):
     def load_procedure(self,path,label):
         with open(path) as csvDataFile:
             csvReader = csv.reader(csvDataFile)
+            label.text = ''
             for row in csvReader:
-                label.text += "- " + str(row) + "\n"
+                label.text += str(row[1]) + "\n    " + str(row[0]) + '\n'
 	
 
 class Project_Argus(MDApp):
@@ -79,8 +80,8 @@ class KivyCamera(Image):
 
         self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
         self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
-        self.camera = jetson.utils.videoSource("csi://0") 
-	#self.camera = jetson.utils.videoSource("/dev/video1")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+        #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
+        self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
 
