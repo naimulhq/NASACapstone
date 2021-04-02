@@ -1,4 +1,85 @@
+<MainMenu>
+	canvas.before:
+		Color:
+			rgba: 1, 1, 1, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	GridLayout:
+		cols:1
+		rows:2
+		size: root.width, root.height
+
+		GridLayout:
+			cols: 2
+			rows: 1
+			size_hint_y: None 
+			height: root.height*1/8
+			size_hint_x: None
+			width: root.width
+
+			GridLayout: # Top Left - Title
+				cols:1
+				size_hint_y:None 
+				height:root.height*1/8
+				size_hint_x:None
+				width:root.width*7/8
+				Label:
+					text: "Project Argus"
+					color: (0,0,0,1)
+
+			GridLayout: # Top Right - Logo
+				cols:1
+				size_hint_y:None 
+				height:root.height/8
+				size_hint_x:None
+				width:root.width/8
+				Image:
+					id: argus_image_main
+					source: "project_argus.png"
+
+		GridLayout:
+			cols: 2
+			rows: 1
+			size_hint_y: None 
+			height: root.height*7/8
+			size_hint_x: None
+			width: root.width
+
+			GridLayout: # Bottom Left - Procedure List
+				cols: 1
+				size_hiny_y:None
+				height:root.height*7/8
+				size_hint_x:None
+				width:root.width/4
+
+				Button:
+					text: "PhantomX Robot Turret Kit"
+					on_press: root.load_procedure('instructions.csv',instruction_list)
+					size_hint_y: None
+					height: root.height/8
+
+			GridLayout: # Bottom Right - Instruction List
+				cols: 1
+				size_hiny_y:None
+				height:root.height*7/8
+				size_hint_x:None
+				width:root.width*3/4
+
+				Label:
+					id: instruction_list
+					color: (0,0,0,1)
+					text_size: self.size
+					halign: 'left'
+					valign: 'top'
+			
 <ProcedureScreen>
+	canvas.before:
+		Color:
+			rgba: 1, 1, 1, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
 	GridLayout:
 		cols:2
 		rows:2
@@ -27,14 +108,14 @@
 
 			Button:
 				text: "Return to Main Menu"
-				
+				on_press: root.manager.current = 'mainMenu'
          
 			Button:
 				text: "Validate"
-				on_press: root.manager.current = 'validateScreen'
         			 
 			Button:
 				text: "Forward"
+				on_press: root.pressed_forward(bottomleft)
 				
         			 
 		GridLayout: # Bottom Left - Text output
@@ -49,83 +130,6 @@
 				text_size: self.size
 				halign: 'left'
     			valign: 'bottom'
-			# MDTextFieldRect:
-    		# 	#hint_text: "Fill mode"
-    		# 	mode: "fill"
-			# 	size_hint_y:None 
-			# 	height:root.height/4
-			# 	size_hint_x:None
-			# 	width:root.width*3/4
-    		# 	fill_color: 0, 0, 0, .4
-			# Label:
-			# 	text: "Text Output"
-
-		GridLayout: # Bottom right - Logo
-			cols:1
-			size_hint_y:None 
-			height:root.height/4
-			size_hint_x:None
-			width:root.width/4
-			Image:
-				id: argus_image
-				source: "project_argus.png"
-
-<ValidateScreen>
-	GridLayout:
-		cols:2
-		rows:2
-		size: root.width, root.height
-		GridLayout: # Tope Left - Camera Feed
-			cols:1
-			size_hint_y:None 
-			height:root.height*3/4
-			size_hint_x:None
-			width:root.width*3/4
-			Label:
-				text: "Camera Feed"
-			
-		GridLayout:
-			rows:3
-			size_hint_y:None 
-			height:root.height*3/4
-			size_hint_x:None
-			width:root.width/4
-
-			Button:
-				text: "Return to Procedure"
-				on_press: root.manager.current = 'procedureScreen'
-				
-         
-			Button:
-				text: "Begin Validation"
-				on_press: root.manager.current = 'validateScreen'
-        			 
-			Button:
-				text: "Quit Procedure"
-				
-        			 
-		GridLayout: # Bottom Left - Text output
-			cols:1
-			size_hint_y:None 
-			height:root.height/4
-			size_hint_x:None
-			width:root.width*3/4
-			Label:
-				id:bottomleft
-				color: (0,0,0,1)
-				text_size: self.size
-				halign: 'left'
-    			valign: 'bottom'
-			# MDTextFieldRect:
-    		# 	#hint_text: "Fill mode"
-    		# 	mode: "fill"
-			# 	size_hint_y:None 
-			# 	height:root.height/4
-			# 	size_hint_x:None
-			# 	width:root.width*3/4
-    		# 	fill_color: 0, 0, 0, .4
-			# Label:
-			# 	text: "Text Output"
 
 		GridLayout: # Bottom right - Logo
 			cols:1

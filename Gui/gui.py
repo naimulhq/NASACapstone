@@ -2,14 +2,15 @@ import os
 os.system("sudo killall ibus-daemon")
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
-Config.set('graphics', 'width', 1214)
-Config.set('graphics', 'height', 743)
+Config.set('graphics', 'width', 1214)	# DON'T CHANGE THIS
+Config.set('graphics', 'height', 743)	# DON'T CHANGE THIS
 from kivy.logger import Logger
 import logging
 Logger.setLevel(logging.TRACE)
 
 import kivy
 from kivy.app import App
+from kivy.graphics import Color
 from kivymd.app import MDApp
 from kivy.uix.label import Label
 #from kivy.uix.boxlayout import BoxLayout
@@ -37,17 +38,22 @@ from datetime import datetime
 
 
 class ProcedureScreen(Screen):
-    pass
+    def pressed_forward(self,label):
+        label.text += "Forward\n"
 
-class ValidateScreen(Screen):
-    pass
+class MainMenu(Screen):
+    def load_procedure(self,path,label):
+        with open(path) as csvDataFile:
+            csvReader = csv.reader(csvDataFile)
+            for row in csvReader:
+                label.text += "- " + str(row) + "\n"
 	
 
 class Project_Argus(MDApp):
     def build(self):
         sm = ScreenManager()
+        sm.add_widget(MainMenu(name='mainMenu'))
         sm.add_widget(ProcedureScreen(name='procedureScreen'))
-        sm.add_widget(ValidateScreen(name='validateScreen'))
         return sm
 
 
@@ -67,7 +73,7 @@ class KivyCamera(Image):
 
 	#os.system("sudo modprobe v4l2loopback") for Rishit
 	#os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
-	time.sleep(5)
+	#time.sleep(5)
         # This net used with Part Detection.
         # Change model directory depending on user. Stores labels in same directory as src
 
@@ -85,8 +91,8 @@ class KivyCamera(Image):
         array = jetson.utils.cudaToNumpy(img)
         buf1 = cv2.flip(array,0)
         buf = buf1.tostring()
-        image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='bgr')
-        image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
+        image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
+        image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
         self.texture = image_texture
 
 if __name__ == "__main__":
