@@ -4,9 +4,9 @@ from kivy.config import Config
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', 1214)	# DON'T CHANGE THIS
 Config.set('graphics', 'height', 743)	# DON'T CHANGE THIS
-from kivy.logger import Logger
-import logging
-Logger.setLevel(logging.TRACE)
+# from kivy.logger import Logger
+# import logging
+# Logger.setLevel(logging.TRACE)
 
 import kivy
 from kivy.app import App
@@ -34,28 +34,44 @@ import csv
 import sys
 import time
 from datetime import datetime
-
+from functools import partial
 
 
 class ProcedureScreen(Screen):
     def pressed_forward(self,label):
         label.text += "Forward\n"
 
+button_exist=False
 class MainMenu(Screen):
+
+    def add_button(self,grid):
+        global button_exist
+
+        if(button_exist==False):
+            button = Button(text="Begin",size_hint_y=None,
+                            height=100,size_hint_x=None,
+                            width=400)
+            button.bind(on_press=self.go_to_procedure)
+            grid.add_widget(button)
+            button_exist=True
+        
+    def go_to_procedure(self,instance):
+        app.sm.current="procedureScreen"
+
     def load_procedure(self,path,label):
         with open(path) as csvDataFile:
-            csvReader = csv.reader(csvDataFile)
+            csvReader = csv.reader(csvDataFile)            
             label.text = ''
             for row in csvReader:
-                label.text += str(row[1]) + "\n    " + str(row[0]) + '\n'
-	
+                label.text += " - " + str(row[1]) + ": " + str(row[0]) + '\n'
+        
 
 class Project_Argus(MDApp):
     def build(self):
-        sm = ScreenManager()
-        sm.add_widget(MainMenu(name='mainMenu'))
-        sm.add_widget(ProcedureScreen(name='procedureScreen'))
-        return sm
+        self.sm = ScreenManager()
+        self.sm.add_widget(MainMenu(name='mainMenu'))
+        self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
+        return self.sm
 
 
 class KivyCamera(Image):
@@ -97,6 +113,7 @@ class KivyCamera(Image):
         self.texture = image_texture
 
 if __name__ == "__main__":
-	Project_Argus().run()
+    app=Project_Argus()
+    app.run()
 
 
