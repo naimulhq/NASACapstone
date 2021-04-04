@@ -95,7 +95,7 @@
 			# Label:
 			# 	text: "Camera Feed"
 			KivyCamera:
-            	id: surgery_video
+            	id: obj_detect
             	# resolution: (3840, 2160)
             	allow_stretch: True
             	size_hint: 0.77, 0.84
@@ -114,6 +114,7 @@
          
 			Button:
 				text: "Validate"
+				on_press: root.beginValidation(obj_detect,bottomleft)
         			 
 			Button:
 				text: "Forward"

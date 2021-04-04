@@ -41,6 +41,11 @@ class ProcedureScreen(Screen):
     def pressed_forward(self,label):
         label.text += "Forward\n"
 
+    def beginValidation(self,cam,label):
+        label.text += "Begin Validation\n\n"
+        cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
+        
+
 button_exist=False
 class MainMenu(Screen):
 
@@ -96,21 +101,51 @@ class KivyCamera(Image):
 
         self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
         self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
-        #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
-        self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+        self.camera = jetson.utils.videoSource("csi://0") #csi://0 
+        #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
+        self.clock2 = None
+
+        with open(os.path.join(sys.path[0], "instructions.csv"),'r') as file:
+            reader = csv.reader(file)
+            self.instructions = list(reader)
+
+        print(self.instructions)
+
+        f = open("labels_stages.txt","r")
+        self.labels_stages = []
+        for i in f.readlines():
+            self.labels_stages.append(i.strip('\n'))
+        f.close()
+
+        self.currentInstr, self.stageCount = 0, 0
 
     def update(self, dt):
-        img = self.camera.Capture()
-        detections = self.part_net.Detect(img) # Holds all the valuable Information
-        stages = self.stages_net.Detect(img)
-        array = jetson.utils.cudaToNumpy(img)
+        self.img = self.camera.Capture()
+        self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
+        self.stages = self.stages_net.Detect(self.img)
+        array = jetson.utils.cudaToNumpy(self.img)
         buf1 = cv2.flip(array,0)
         buf = buf1.tostring()
         image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
         image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
         self.texture = image_texture
+
+    def stageValidate(self,label,dt):
+        if len(self.stages) == 0:
+            pass
+        else:
+            if self.labels_stages[self.stages[0].ClassID] == self.instructions[self.currentInstr][1]:
+                self.stageCount += 1
+            else:
+                self.stageCount = 0
+
+            if self.stageCount == 48:
+                self.currentInstr += 1
+                label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
+                Clock.unschedule(self.clock2)
+			
 
 if __name__ == "__main__":
     app=Project_Argus()
