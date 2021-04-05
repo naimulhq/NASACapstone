@@ -63,7 +63,7 @@ class MainMenu(Screen):
     def go_to_procedure(self,instance):
         app.sm.current="procedureScreen"
         sc = app.sm.get_screen("procedureScreen")
-        sc.ids.bottomleft.text = self.firstStage
+        sc.ids.bottomleft.text = "Welcome to Project Argus! \n\n" + self.firstStage
 
     def load_procedure(self,path,label):
         count = 0
@@ -125,6 +125,7 @@ class KivyCamera(Image):
             self.labels_stages.append(i.strip('\n'))
         f.close()
 
+        self.timeout = 0
         self.currentInstr, self.stageCount = 0, 0
 
     def update(self, dt):
@@ -139,6 +140,7 @@ class KivyCamera(Image):
         self.texture = image_texture
 
     def stageValidate(self,label,dt):
+        self.timeout += 1
         if len(self.stages) == 0:
             pass
         else:
@@ -149,8 +151,15 @@ class KivyCamera(Image):
 
             if self.stageCount == 48:
                 self.currentInstr += 1
-                label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
+                self.stageCount = 0
+                label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
                 Clock.unschedule(self.clock2)
+
+        if self.timeout == 1200:
+            label.text += "Validation Unsuccessful. Time expired!\n\n"
+            Clock.unschedule(self.clock2)
+            self.timeout = 0
+            
 			
 
 if __name__ == "__main__":
