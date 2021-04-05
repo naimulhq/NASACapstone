@@ -62,12 +62,18 @@ class MainMenu(Screen):
         
     def go_to_procedure(self,instance):
         app.sm.current="procedureScreen"
+        sc = app.sm.get_screen("procedureScreen")
+        sc.ids.bottomleft.text = self.firstStage
 
     def load_procedure(self,path,label):
+        count = 0
         with open(path) as csvDataFile:
             csvReader = csv.reader(csvDataFile)            
             label.text = ''
             for row in csvReader:
+                if count == 0:
+                    self.firstStage = str(row[1]) + ": " + str(row[0]) + '\n\n'
+                    count += 1
                 label.text += " - " + str(row[1]) + ": " + str(row[0]) + '\n'
         
 
