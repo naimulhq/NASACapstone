@@ -38,8 +38,19 @@ from functools import partial
 
 
 class ProcedureScreen(Screen):
-    def pressed_forward(self,label):
-        label.text += "Forward\n"
+    def pressed_forward(self,cam,label):
+        if cam.currentInstr < len(cam.instructions)-1:
+            cam.currentInstr += 1
+            label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+        else:
+            label.text += "Currently on last instruction. Cannot skip stage.\n\n"
+
+    def pressed_previous(self,cam,label):
+        if cam.currentInstr > 0:
+            cam.currentInstr -= 1
+            label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+        else:
+            label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
 
     def beginValidation(self,cam,label):
         label.text += "Begin Validation\n\n"
@@ -97,7 +108,7 @@ class KivyCamera(Image):
         #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
         #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
         part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
-        stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
+        stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages_Test.onnx'
 
 	#os.system("sudo modprobe v4l2loopback") for Rishit
 	#os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
