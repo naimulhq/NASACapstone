@@ -94,7 +94,7 @@ class MainMenu(Screen):
                 if count == 0:
                     self.firstStage = str(row[1]) + ": " + str(row[0]) + '\n\n'
                     count += 1
-                label.text += " - " + str(row[1]) + ": " + str(row[0]) + '\n'
+                label.text += "         - " + str(row[1]) + ": " + str(row[0]) + '\n'
         
 
 class Project_Argus(MDApp):

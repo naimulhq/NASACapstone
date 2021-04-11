@@ -27,6 +27,7 @@
 				Label:
 					text: "Project Argus"
 					color: (0,0,0,1)
+					font_size: 40
 
 			GridLayout: # Top Right - Logo
 				cols:1
@@ -37,6 +38,17 @@
 				Image:
 					id: argus_image_main
 					source: "project_argus.png"
+			
+		Widget:
+			id: separator
+			size_hint_y: None
+			height: 6
+			canvas:
+				Color:
+					rgb: 0., 0., 0.
+				Rectangle:
+					pos: 0, separator.center_y + 5
+					size: separator.width, 5
 
 		GridLayout:
 			cols: 2
@@ -58,6 +70,17 @@
 					on_press: root.load_procedure('instructions.csv',instruction_list), root.add_button(bottomRight)
 					size_hint_y: None
 					height: root.height/8
+
+				Widget:
+					id: separator2
+					size_hint_x: None
+					height: 10
+					canvas:
+						Color:
+							rgb: 0., 0., 0.
+						Rectangle:
+							pos: 330, 0
+							size: 5, 655
 
 			GridLayout: # Bottom Right - Instruction List
 				id: bottomRight
