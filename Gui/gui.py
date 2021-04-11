@@ -39,22 +39,31 @@ from functools import partial
 
 class ProcedureScreen(Screen):
     def pressed_forward(self,cam,label):
-        if cam.currentInstr < len(cam.instructions)-1:
+        if (cam.currentInstr < len(cam.instructions)-1) and not cam.isComplete :
             cam.currentInstr += 1
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+        elif (cam.currentInstr == len(cam.instructions) - 1) and not cam.isComplete:
+            label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
+            cam.isComplete = True
         else:
-            label.text += "Currently on last instruction. Cannot skip stage.\n\n"
+            label.text += "Cannot go forward. The procedure is complete.\n\nClose window or return to main menu.\n\n"
+
 
     def pressed_previous(self,cam,label):
-        if cam.currentInstr > 0:
+        if (cam.currentInstr > 0) and not cam.isComplete:
             cam.currentInstr -= 1
             label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
-        else:
+        elif cam.currentInstr == 0:
             label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
+        else:
+            label.text += "Cannot go backward. The procedure is complete.\n\nClose window or return to main menu.\n\n"
 
     def beginValidation(self,cam,label):
-        label.text += "Begin Validation\n\n"
-        cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
+        if (cam.currentInstr < len(cam.instructions)) and not cam.isComplete:
+            label.text += "Begin Validation\n\n"
+            cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
+        else:
+            label.text += "Procedure Complete! Can not validate!\n\nClose or return to main menu.\n\n"
         
 
 button_exist=False
@@ -123,6 +132,7 @@ class KivyCamera(Image):
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
         self.clock2 = None
+        self.isComplete = False
 
         with open(os.path.join(sys.path[0], "instructions.csv"),'r') as file:
             reader = csv.reader(file)
