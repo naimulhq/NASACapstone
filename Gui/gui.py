@@ -39,27 +39,26 @@ from functools import partial
 
 class ProcedureScreen(Screen):
     def pressed_forward(self,cam,label):
-        if (cam.currentInstr < len(cam.instructions)-1) and not cam.isComplete :
+        if (cam.currentInstr < len(cam.instructions)-1):
             cam.currentInstr += 1
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
-        elif (cam.currentInstr == len(cam.instructions) - 1) and not cam.isComplete:
+        elif (cam.currentInstr == len(cam.instructions) - 1):
+            cam.currentInstr += 1
             label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
-            cam.isComplete = True
         else:
             label.text += "Cannot go forward. The procedure is complete.\n\nClose window or return to main menu.\n\n"
 
 
     def pressed_previous(self,cam,label):
-        if (cam.currentInstr > 0) and not cam.isComplete:
+        if (cam.currentInstr > 0):
             cam.currentInstr -= 1
             label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
-        elif cam.currentInstr == 0:
-            label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
         else:
-            label.text += "Cannot go backward. The procedure is complete.\n\nClose window or return to main menu.\n\n"
+            label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
+
 
     def beginValidation(self,cam,label):
-        if (cam.currentInstr < len(cam.instructions)) and not cam.isComplete:
+        if (cam.currentInstr < len(cam.instructions)):
             label.text += "Begin Validation\n\n"
             cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
         else:
@@ -94,7 +93,7 @@ class MainMenu(Screen):
                 if count == 0:
                     self.firstStage = str(row[1]) + ": " + str(row[0]) + '\n\n'
                     count += 1
-                label.text += "         - " + str(row[1]) + ": " + str(row[0]) + '\n'
+                label.text += "     - " + str(row[1]) + ": " + str(row[0]) + '\n'
         
 
 class Project_Argus(MDApp):
