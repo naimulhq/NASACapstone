@@ -74,7 +74,7 @@ class MainMenu(Screen):
         if(button_exist==False):
             button = Button(text="Begin",size_hint_y=None,
                             height=100,size_hint_x=None,
-                            width=400)
+                            width=400, pos=(810,3))
             button.bind(on_press=self.go_to_procedure)
             grid.add_widget(button)
             button_exist=True

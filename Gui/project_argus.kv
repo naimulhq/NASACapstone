@@ -11,19 +11,30 @@
 		size: root.width, root.height
 
 		GridLayout:
-			cols: 2
+			cols: 3
 			rows: 1
 			size_hint_y: None 
 			height: root.height*1/8
 			size_hint_x: None
 			width: root.width
 
-			GridLayout: # Top Left - Title
+			GridLayout: # Top Left - NASA Logo
+				cols:1
+				size_hint_y:None 
+				height:root.height*9/80 + 2
+				size_hint_x:None
+				width:root.width/8
+				Image:
+					id: nasa_image_main
+					source: "nasa_logo_vector_black.png"
+
+
+			GridLayout: # Top Middle - Project Argus Title
 				cols:1
 				size_hint_y:None 
 				height:root.height*1/8
 				size_hint_x:None
-				width:root.width*7/8
+				width:root.width*6/8
 				Label:
 					text: "Project Argus"
 					color: (0,0,0,1)
@@ -58,18 +69,19 @@
 			size_hint_x: None
 			width: root.width
 
-			GridLayout: # Bottom Left - Procedure List
-				cols: 1
+			FloatLayout: # Bottom Left - Procedure List
 				size_hint_y:None
 				height:root.height*7/8
 				size_hint_x:None
 				width:root.width/4
+				
 
 				Button:
 					text: "PhantomX Robot Turret Kit"
 					on_press: root.load_procedure('instructions.csv',instruction_list), root.add_button(bottomRight)
 					size_hint_y: None
 					height: root.height/8
+					pos: 3,556
 
 				Widget:
 					id: separator2
@@ -79,24 +91,23 @@
 						Color:
 							rgb: 0., 0., 0.
 						Rectangle:
-							pos: 330, 0
+							pos: 310, 0
 							size: 5, 655
 
-			GridLayout: # Bottom Right - Instruction List
+
+			FloatLayout: # Bottom Right - Instruction List
 				id: bottomRight
-				cols: 1
 				size_hint_y:None
 				height:root.height*7/8
 				size_hint_x:None
 				width:root.width*3/4
-
+				
 
 				Label:
 					id: instruction_list
 					color: (0,0,0,1)
 					text_size: self.size
-					halign: 'left'
-					valign: 'top'
+					pos: 300,469
 			
 <ProcedureScreen>
 	canvas.before:
