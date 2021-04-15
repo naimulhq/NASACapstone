@@ -63,7 +63,45 @@ class ProcedureScreen(Screen):
             cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
         else:
             label.text += "Procedure Complete! Can not validate!\n\nClose or return to main menu.\n\n"
-        
+
+    def updateChecklist(self,cam,label,fix):
+        temp = cam.currentInstr + fix
+        if temp <= 0:
+            label.text += cam.instructions[0][1] + " - Current\n\n"
+            label.text += cam.instructions[1][1] + "\n\n"
+            label.text += cam.instructions[2][1] + "\n\n"
+            label.text += cam.instructions[3][1] + "\n\n"
+            label.text += cam.instructions[4][1] + "\n\n"
+        elif temp == 1:
+            label.text += cam.instructions[0][1] + " - Done\n\n"
+            label.text += cam.instructions[1][1] + " - Current\n\n"
+            label.text += cam.instructions[2][1] + "\n\n"
+            label.text += cam.instructions[3][1] + "\n\n"
+            label.text += cam.instructions[4][1] + "\n\n"
+        elif temp == len(cam.instructions)-1:
+            label.text += cam.instructions[-5][1] + " - Done\n\n"
+            label.text += cam.instructions[-4][1] + " - Done\n\n"
+            label.text += cam.instructions[-3][1] + " - Done\n\n"
+            label.text += cam.instructions[-2][1] + " - Done\n\n"
+            label.text += cam.instructions[-1][1] + " - Current\n\n"
+        elif temp == len(cam.instructions)-2:
+            label.text += cam.instructions[-5][1] + " - Done\n\n"
+            label.text += cam.instructions[-4][1] + " - Done\n\n"
+            label.text += cam.instructions[-3][1] + " - Done\n\n"
+            label.text += cam.instructions[-2][1] + " - Current\n\n"
+            label.text += cam.instructions[-1][1] + "\n\n"
+        elif temp >= len(cam.instructions):
+            label.text += cam.instructions[-5][1] + " - Done\n\n"
+            label.text += cam.instructions[-4][1] + " - Done\n\n"
+            label.text += cam.instructions[-3][1] + " - Done\n\n"
+            label.text += cam.instructions[-2][1] + " - Done\n\n"
+            label.text += cam.instructions[-1][1] + " - Done\n\n"
+        else:
+            label.text += cam.instructions[temp-2][1] + " - Done\n\n"
+            label.text += cam.instructions[temp-1][1] + " - Done\n\n"
+            label.text += cam.instructions[temp][1] + " - Current\n\n"
+            label.text += cam.instructions[temp+1][1] + "\n\n"
+            label.text += cam.instructions[temp+2][1] + "\n\n"
 
 button_exist=False
 class MainMenu(Screen):
@@ -83,6 +121,11 @@ class MainMenu(Screen):
         app.sm.current="procedureScreen"
         sc = app.sm.get_screen("procedureScreen")
         sc.ids.bottomleft.text = "Welcome to Project Argus! \n\n" + self.firstStage
+        sc.ids.checklist.text += "Stage 1.2 - Current\n\n"
+        sc.ids.checklist.text += "Stage 2.1\n\n"
+        sc.ids.checklist.text += "Stage 2.2\n\n"
+        sc.ids.checklist.text += "Stage 3.2\n\n"
+        sc.ids.checklist.text += "Stage 4.1\n\n"
 
     def load_procedure(self,path,label):
         count = 0
@@ -116,7 +159,7 @@ class KivyCamera(Image):
         #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
         #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
         part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
-        stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages_Test.onnx'
+        stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
 	#os.system("sudo modprobe v4l2loopback") for Rishit
 	#os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
@@ -174,8 +217,45 @@ class KivyCamera(Image):
                 self.stageCount = 0
                 label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
                 Clock.unschedule(self.clock2)
+                sc = app.sm.get_screen("procedureScreen")
+                if self.currentInstr <= 0:
+                    sc.ids.checklist.text += self.instructions[0][1] + " - Current\n\n"
+                    sc.ids.checklist.text += self.instructions[1][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[2][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[3][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[4][1] + "\n\n"
+                elif self.currentInstr == 1:
+                    sc.ids.checklist.text += self.instructions[0][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[1][1] + " - Current\n\n"
+                    sc.ids.checklist.text += self.instructions[2][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[3][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[4][1] + "\n\n"
+                elif self.currentInstr == len(self.instructions)-1:
+                    sc.ids.checklist.text += self.instructions[-5][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-4][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-3][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-2][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-1][1] + " - Current\n\n"
+                elif self.currentInstr == len(self.instructions)-2:
+                    sc.ids.checklist.text += self.instructions[-5][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-4][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-3][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-2][1] + " - Current\n\n"
+                    sc.ids.checklist.text += self.instructions[-1][1] + "\n\n"
+                elif self.currentInstr >= len(self.instructions):
+                    sc.ids.checklist.text += self.instructions[-5][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-4][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-3][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-2][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[-1][1] + " - Done\n\n"
+                else:
+                    sc.ids.checklist.text += self.instructions[self.currentInstr-2][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[self.currentInstr-1][1] + " - Done\n\n"
+                    sc.ids.checklist.text += self.instructions[self.currentInstr][1] + " - Current\n\n"
+                    sc.ids.checklist.text += self.instructions[self.currentInstr+1][1] + "\n\n"
+                    sc.ids.checklist.text += self.instructions[self.currentInstr+2][1] + "\n\n"
 
-        if self.timeout == 1200:
+        if self.timeout == 400:
             label.text += "Validation Unsuccessful. Time expired!\n\n"
             Clock.unschedule(self.clock2)
             self.timeout = 0

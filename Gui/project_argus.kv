@@ -120,25 +120,28 @@
 		cols:2
 		rows:2
 		size: root.width, root.height
+
 		GridLayout: # Tope Left - Camera Feed
 			cols:1
 			size_hint_y:None 
-			height:root.height*3/4
+			height:root.height*7/10
 			size_hint_x:None
 			width:root.width*3/4
 			# Label:
 			# 	text: "Camera Feed"
+
 			KivyCamera:
             	id: obj_detect
             	# resolution: (3840, 2160)
             	allow_stretch: True
             	size_hint: 0.77, 0.84
             	pos_hint: {"x":0.01, "y":0.15}
-            	#opacity: 1 if root.camIsShown else 0	
+            	#opacity: 1 if root.camIsShown else 0
+
 		GridLayout: # Top Right - Buttons
 			rows:4
 			size_hint_y:None 
-			height:root.height*3/4
+			height:root.height*7/10
 			size_hint_x:None
 			width:root.width/4
 
@@ -149,33 +152,53 @@
 			Button:
 				text: "Previous"
 				on_press: root.pressed_previous(obj_detect,bottomleft)
+				on_press: root.updateChecklist(obj_detect,checklist,-1)
 
 			Button:
 				text: "Validate"
 				on_press: root.beginValidation(obj_detect,bottomleft)
+				#on_press: root.updateChecklist(obj_detect,checklist,1)
         			 
 			Button:
 				text: "Forward"
 				on_press: root.pressed_forward(obj_detect,bottomleft)
-				
-        			 
+				on_press: root.updateChecklist(obj_detect,checklist,1)
+				     			 
 		GridLayout: # Bottom Left - Text output
-			cols:1
+			cols: 2
 			size_hint_y:None 
-			height:root.height/4
+			height:root.height*3/10
 			size_hint_x:None
 			width:root.width*3/4
-			Label:
-				id:bottomleft
-				color: (0,0,0,1)
-				text_size: self.size
-				halign: 'left'
-    			valign: 'bottom'
+
+			GridLayout:	# text output
+				cols: 1
+				size_hint_x:None
+				width:root.width*9/16
+				
+				Label:
+					id:bottomleft
+					color: (0,0,0,1)
+					text_size: self.size
+					halign: 'left'
+					valign: 'bottom'
+
+			GridLayout: # checklist/progress bar
+				cols: 1
+				size_hint_x:None
+				width:root.width*3/16
+
+				Label:
+					id:checklist
+					color: (0,0,0,1)
+					text_size: self.size
+					halign: 'left'
+					valign: 'bottom'
 
 		GridLayout: # Bottom right - Logo
 			cols:1
 			size_hint_y:None 
-			height:root.height/4
+			height:root.height*3/10
 			size_hint_x:None
 			width:root.width/4
 			Image:
