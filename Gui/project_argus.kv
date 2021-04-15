@@ -1,10 +1,13 @@
 <MainMenu>
 	canvas.before:
+
 		Color:
 			rgba: 1, 1, 1, 1
+
 		Rectangle:
 			pos: self.pos
 			size: self.size
+
 	GridLayout:
 		cols:1
 		rows:2
@@ -24,10 +27,10 @@
 				height:root.height*9/80 + 2
 				size_hint_x:None
 				width:root.width/8
+
 				Image:
 					id: nasa_image_main
 					source: "nasa_logo_vector_black.png"
-
 
 			GridLayout: # Top Middle - Project Argus Title
 				cols:1
@@ -35,6 +38,7 @@
 				height:root.height*1/8
 				size_hint_x:None
 				width:root.width*6/8
+
 				Label:
 					text: "Project Argus"
 					color: (0,0,0,1)
@@ -46,6 +50,7 @@
 				height:root.height/8
 				size_hint_x:None
 				width:root.width/8
+
 				Image:
 					id: argus_image_main
 					source: "project_argus.png"
@@ -55,8 +60,10 @@
 			size_hint_y: None
 			height: 6
 			canvas:
+
 				Color:
 					rgb: 0., 0., 0.
+
 				Rectangle:
 					pos: 0, separator.center_y + 5
 					size: separator.width, 5
@@ -75,7 +82,6 @@
 				size_hint_x:None
 				width:root.width/4
 				
-
 				Button:
 					text: "PhantomX Robot Turret Kit"
 					on_press: root.load_procedure('instructions.csv',instruction_list), root.add_button(bottomRight)
@@ -88,12 +94,13 @@
 					size_hint_x: None
 					height: 10
 					canvas:
+
 						Color:
 							rgb: 0., 0., 0.
+
 						Rectangle:
 							pos: 310, 0
 							size: 5, 655
-
 
 			FloatLayout: # Bottom Right - Instruction List
 				id: bottomRight
@@ -102,7 +109,6 @@
 				size_hint_x:None
 				width:root.width*3/4
 				
-
 				Label:
 					id: instruction_list
 					color: (0,0,0,1)
@@ -111,32 +117,31 @@
 			
 <ProcedureScreen>
 	canvas.before:
+
 		Color:
 			rgba: 1, 1, 1, 1
+
 		Rectangle:
 			pos: self.pos
 			size: self.size
+
 	GridLayout:
 		cols:2
 		rows:2
 		size: root.width, root.height
 
-		GridLayout: # Tope Left - Camera Feed
+		GridLayout: # Top Left - Camera Feed
 			cols:1
 			size_hint_y:None 
 			height:root.height*7/10
 			size_hint_x:None
 			width:root.width*3/4
-			# Label:
-			# 	text: "Camera Feed"
 
 			KivyCamera:
             	id: obj_detect
-            	# resolution: (3840, 2160)
             	allow_stretch: True
             	size_hint: 0.77, 0.84
             	pos_hint: {"x":0.01, "y":0.15}
-            	#opacity: 1 if root.camIsShown else 0
 
 		GridLayout: # Top Right - Buttons
 			rows:4
@@ -201,6 +206,7 @@
 			height:root.height*3/10
 			size_hint_x:None
 			width:root.width/4
+
 			Image:
 				id: argus_image
 				source: "project_argus.png"
