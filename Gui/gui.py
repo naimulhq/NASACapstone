@@ -161,8 +161,8 @@ class KivyCamera(Image):
 
         self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
         self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
-        self.camera = jetson.utils.videoSource("csi://0") #csi://0 
-        #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+        #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
+        self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
         self.clock2 = None
@@ -205,9 +205,16 @@ class KivyCamera(Image):
                 self.stageCount = 0
 
             if self.stageCount == 48:
-                self.currentInstr += 1
                 self.stageCount = 0
-                label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
+                self.currentInstr += 1
+
+                #label.text += "self.currentInstr: " + str(self.currentInstr) + " " + str(len(self.instructions))
+                if self.currentInstr < len(self.instructions):
+                    #self.currentInstr = len(self.instructions) - 1
+                    label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
+                elif self.currentInstr >= len(self.instructions):
+                    label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
+
                 Clock.unschedule(self.clock2)
                 sc = app.sm.get_screen("procedureScreen")
                 if self.currentInstr <= 0:
