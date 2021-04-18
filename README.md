@@ -17,45 +17,44 @@
 * John Karasinski
 * Melodie Yashar
 
-# External Behavior Specification
+# Background and Overview
 
-**Purpose:** The Astronaut Procedure Tracker is designed to help an individual perform a specific task by tracking each step using various cameras and sensors. Utilizing concepts such as computer vision and machine learning, our system will help an individual assemble a PhantomX Pan Tilt Robotic Turret. The system will keep track of each step the individual is on, and validate to ensure that it is being done correctly. If a person has not completed a specific step, or has completed a step incorrectly, the system must be able to notify the user about the issue before moving on. The assembly of the robotic turret will be split into ‘stages’. Each stage corresponds to a significant portion of the robotic turret.
+NASA astronauts perform maintenance and assembly procedures, which contain many complicated steps that are difficult to follow. As a result, astronauts are required to contact ground control for guidance. This poses a significant issue for future space exploration missions that require traveling to farther locations. For example, as astronauts prepare to head towards Mars, communication delay with ground control could take up to 20 minutes. With the help of NASA's Ames Research Center, Project Argus utilizes Machine Learning and Computer Vision concepts to develop a system that can track and validate each step of a procedure performed by an astronaut.
 
-**Nvidia Jetson Nano:** The following development kit is well known for computer vision and machine learning applications. The development kit will be interfacing with various sensors and cameras using specific protocols. 
+# Project Specification
 
-**Raspberry Pi Camera (1):** The Nvidia Jetson Nano comes with four USB ports. These ports will be utilized to interface with two different cameras. Our goal is to have two different cameras on a table oriented in different angles to capture visual data. The Jetson will be on the table as well.
+**Nvidia Jetson Nano:** This development kit is the brains of the entire system. The Jetson Nano will be running our GUI and using various protocols to capture data from our cameras and perform inferencing on the data for part detection and stage validation purposes. Jetson Nano will also be used to train our object detection models. 
 
-**GoPro Wifi Camera(1):** Since an individual might be moving around for extended periods of time, we decided to attach a camera onto the individual’s waist or head which will communicate through Wifi. As a result, there is no need to keep the Jetson on the person and instead, have only a camera attached.
+**Camera:** To collect our data, we will be using a single camera. We would either use a USB Camera that is connected to the Jetson or a Go Pro Camera which communicates with the Jetson using a transmission protocol.
 
-**LCD Display or Monitor:** Our system needs to find a way to communicate with the individual about what task they are currently working on and if it is being done properly. We will use either an LCD Display or Monitor as our output device. Not only should the output device show the task being worked on but should put the feed from the camera with a bounding box on the tools and parts needed for that specific step.
+**PhantomX Robotic Turret:** To test out our system, we will be assembling a PhantomX Robotic Turret. This turret contains various parts of all shapes and sizes that our system will be responsible for validating.
 
-# Identification of Roles (Roles are tentative for now)
+# Identification of Roles 
 
 **Rishit Arora**
-* Communication between Cameras and Sensors with the Nvidia Jetson Nano using common Networking Protocols (Interface / Data Transmission)
-* Figuring out Image Detection using different Open-Source Object Detection packages (ML / AI Training) 
+
 
 **Oles Bober**
-* Hardware assembler, Interface / Data Transmission 
+
 
 **Naimul Hoque**
-* Team Leader.
-* ML/AI Training
+
 
 **Edwin Varela**
-* ML/AI training.
+
 
 **Abel Semma**
-* Work with Python GUI frameworks to create the User Interface
-* Work with Edwin and Naimul on the AI/ML training to integrate our systems 
-
-# Hardware Assembly
-
-**ML / AI Training -**  This individual(s) is responsible for creating a custom dataset for different tools that will be used in the assembly process. Responsible for utilizing different software packages to train a model and use the model for object detection purposes.
-
-**Interface / Data Transmission -** This individual(s) is responsible for determining how to use the Nvidia Jetson TX2 to interface with different sensors and cameras using different protocols such as UART and I2C.
 
 
-**User Interface -** This individual(s) is responsible for designing a user interface that allows  the user to choose a specific procedure and lets them view the current step that is being performed.
+# Installation and Setup Guide.
 
-**LCD/Monitor Configuration -** The individual(s) is responsible for figuring out how to interface the Monitor or LCD Display with the Jetson. In addition, this individual(s) will be working with the User Interface to determine how to put the live feed on display.
+To set up our project on your Jetson Nano, you will need to run the following commands:
+```
+mkdir ProjectArgus
+cd ProjectArgus
+git clone https://github.com/naimulhq/NASACapstone
+cd NASACapstone
+./install.sh
+```
+
+
