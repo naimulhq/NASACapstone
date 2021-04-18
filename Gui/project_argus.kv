@@ -1,3 +1,40 @@
+<StartUp>
+	FloatLayout:
+		canvas.before:
+			Rectangle:
+				pos: self.pos
+				size: self.size
+				source: 'Astronaut.jpg'
+
+		TextInput:
+			id: userInput
+			multiline: False
+			pos: 500,100
+			size_hint_y: None
+			size_hint_x: None
+			height: 30
+			width: 200
+			text: "username"
+
+		TextInput:
+			id: passwordInput
+			multiline: False
+			pos: 500,50
+			size_hint_y: None
+			size_hint_x: None
+			height: 30
+			width: 200
+			text: "password"
+		
+		Button:
+			text: "Submit"
+			size_hint_x: None
+			size_hint_y: None
+			height: 50
+			width: 100
+			pos: 750, 70
+			on_press: root.checkUser()
+
 <MainMenu>
 	canvas.before:
 

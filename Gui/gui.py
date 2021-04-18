@@ -138,11 +138,16 @@ class MainMenu(Screen):
                     self.firstStage = str(row[1]) + ": " + str(row[0]) + '\n\n'
                     count += 1
                 label.text += "     - " + str(row[1]) + ": " + str(row[0]) + '\n'
-        
+
+class StartUp(Screen):
+    def checkUser(self):
+        if self.ids.userInput.text == "user" and self.ids.passwordInput.text == "password":
+             app.sm.current = 'mainMenu'
 
 class Project_Argus(MDApp):
     def build(self):
         self.sm = ScreenManager()
+        self.sm.add_widget(StartUp(name='startUp'))
         self.sm.add_widget(MainMenu(name='mainMenu'))
         self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
         return self.sm
