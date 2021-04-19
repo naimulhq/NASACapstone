@@ -263,7 +263,7 @@ class KivyCamera(Image):    # procedure
                 if True in matches:
                     first_match_index=matches.index(True)
                     name=self.Names[first_match_index]
-                if name == "Edwin Varela":
+                if name == "Edwin Varela" or "Naimul Hoque" or "Abel Semma" or "Rishit Arora" or "Oles Bober":
                     self.counter+=1
                     if self.counter>30:
                         self.counter=0
