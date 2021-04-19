@@ -1,0 +1,493 @@
+<StartUp>
+	FloatLayout:
+		canvas.before:
+			Rectangle:
+				pos: self.pos
+				size: self.size
+				source: 'Astronaut.jpg'
+
+		TextInput:
+			id: userInput
+			multiline: False
+			pos: 500,100
+			size_hint_y: None
+			size_hint_x: None
+			height: 30
+			width: 200
+			text: "username"
+
+		TextInput:
+			id: passwordInput
+			multiline: False
+			pos: 500,50
+			size_hint_y: None
+			size_hint_x: None
+			height: 30
+			width: 200
+			text: "password"
+		
+		Button:
+			text: "Submit"
+			size_hint_x: None
+			size_hint_y: None
+			height: 50
+			width: 100
+			pos: 750, 70
+			on_press: root.checkUser()
+
+<MainMenu>
+	name: "mainMenu"
+	canvas.before:
+
+		Color:
+			rgba: 1, 1, 1, 1
+
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+	GridLayout:
+		cols:1
+		rows:2
+		size: root.width, root.height
+
+		GridLayout:
+			cols: 3
+			rows: 1
+			size_hint_y: None 
+			height: root.height*1/8
+			size_hint_x: None
+			width: root.width
+
+			GridLayout: # Top Left - NASA Logo
+				cols:1
+				size_hint_y:None 
+				height:root.height*9/80 + 2
+				size_hint_x:None
+				width:root.width/8
+
+				Image:
+					id: nasa_image_main
+					source: "nasa_logo_vector_black.png"
+
+			GridLayout: # Top Middle - Project Argus Title
+				cols:1
+				size_hint_y:None 
+				height:root.height*1/8
+				size_hint_x:None
+				width:root.width*6/8
+
+				Label:
+					text: "Project Argus"
+					color: (0,0,0,1)
+					font_size: 40
+
+			GridLayout: # Top Right - Logo
+				cols:1
+				size_hint_y:None 
+				height:root.height/8
+				size_hint_x:None
+				width:root.width/8
+
+				Image:
+					id: argus_image_main
+					source: "project_argus.png"
+			
+		Widget:
+			id: separator
+			size_hint_y: None
+			height: 6
+			canvas:
+
+				Color:
+					rgb: 0., 0., 0.
+
+				Rectangle:
+					pos: 0, separator.center_y + 5
+					size: separator.width, 5
+
+		GridLayout:
+			cols: 2
+			rows: 1
+			size_hint_y: None 
+			height: root.height*7/8
+			size_hint_x: None
+			width: root.width
+
+			FloatLayout: # Bottom Left - Procedure List
+				size_hint_y:None
+				height:root.height*7/8
+				size_hint_x:None
+				width:root.width/4
+				
+				Button:
+					text: "PhantomX Robot Turret Kit"
+					on_press: root.load_procedure('instructions.csv',instruction_list), root.add_button(bottomRight)
+					size_hint_y: None
+					height: root.height/8
+					pos: 3,556
+
+				Widget:
+					id: separator2
+					size_hint_x: None
+					height: 10
+					canvas:
+
+						Color:
+							rgb: 0., 0., 0.
+
+						Rectangle:
+							pos: 310, 0
+							size: 5, 655
+
+			FloatLayout: # Bottom Right - Instruction List
+				id: bottomRight
+				size_hint_y:None
+				height:root.height*7/8
+				size_hint_x:None
+				width:root.width*3/4
+				
+				Label:
+					id: instruction_list
+					color: (0,0,0,1)
+					text_size: self.size
+					pos: 300,469
+			
+<ProcedureScreen>
+	id: pS
+	name: 'procedureScreen'
+	canvas.before:
+
+		Color:
+			rgba: 1, 1, 1, 1
+
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+	GridLayout:
+		id: g1
+		cols:2
+		rows:2
+		size: root.width, root.height
+
+		GridLayout: # Top Left - Camera Feed
+			id: g2
+			cols:1
+			size_hint_y:None 
+			height:root.height*7/10-6
+			size_hint_x:None
+			width:root.width*3/4
+
+			# KivyCamera:	// Procedure
+            # 	id: obj_detect
+            # 	allow_stretch: True
+            # 	size_hint: 0.77, 0.84
+            # 	pos_hint: {"x":0.01, "y":0.15}
+
+		GridLayout: # Top Right - Buttons
+			rows:4
+			size_hint_y:None 
+			height:root.height*7/10-6
+			size_hint_x:None
+			width:root.width/4
+
+			Button:
+				text: "Return to Main Menu"
+				on_press: root.manager.current = 'mainMenu'
+         
+			Button:
+				text: "Previous"
+				on_press: root.pressed_previous(obj_detect,bottomleft)
+				on_press: root.updateChecklist(obj_detect,checklist,-1)
+
+			Button:
+				text: "Validate"
+				on_press: root.beginValidation(obj_detect,bottomleft)
+				#on_press: root.updateChecklist(obj_detect,checklist,1)
+        			 
+			Button:
+				text: "Forward"
+				on_press: root.pressed_forward(obj_detect,bottomleft)
+				on_press: root.updateChecklist(obj_detect,checklist,1)
+				     			 
+		GridLayout: # Bottom Left - Text output
+			cols: 2
+			size_hint_y:None 
+			height:root.height*3/10+6
+			size_hint_x:None
+			width:root.width*3/4
+
+			GridLayout:	# text output
+				cols: 1
+				size_hint_x:None
+				width:root.width*9/16
+				
+				Label:
+					id:bottomleft
+					color: (0,0,0,1)
+					text_size: self.size
+					halign: 'left'
+					valign: 'bottom'
+
+			GridLayout: # checklist/progress bar
+				cols: 1
+				size_hint_x:None
+				width:root.width*3/16
+
+				Label:
+					id:checklist
+					color: (0,0,0,1)
+					text_size: self.size
+					halign: 'left'
+					valign: 'bottom'
+
+		GridLayout: # Bottom right - Logo
+			cols:1
+			size_hint_y:None 
+			height:root.height*3/10+6
+			size_hint_x:None
+			width:root.width/4
+
+			Image:
+				id: argus_image
+				source: "project_argus.png"
+
+		Widget:
+			id: horiz_separator
+			size_hint_y: None
+			height: root.height*6/10-8
+			canvas:
+
+				Color:
+					rgb: 0., 0., 0.
+
+				Rectangle:
+					pos: 0, horiz_separator.center_y + 5
+					size: root.width, 5
+
+		Widget:
+			id: vert_separator_left
+			canvas:
+
+				Color:
+					rgb: 0., 0., 0.
+
+				Rectangle:
+					pos: root.width*9/16-8, 0
+					size: 5, root.height*3/10+6
+
+		Widget:
+			id: vert_separator_right
+			canvas:
+
+				Color:
+					rgb: 0., 0., 0.
+
+				Rectangle:
+					pos: root.width*3/4-2.5, 0
+					size: 5, root.height*3/10+6
+
+
+
+
+
+############################################################################
+<CreateAccountWindow>:
+
+    name: "create"
+
+    namee: namee
+    email: email
+    password: passw
+
+    FloatLayout:
+        cols:1
+
+        FloatLayout:
+            size: root.width, root.height/2
+            
+            Label:
+                text: "Create an Account"
+                size_hint: 0.8, 0.2
+                pos_hint: {"x":0.1, "top":1}
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            Label:
+                size_hint: 0.5,0.12
+                pos_hint: {"x":0, "top":0.8}
+                text: "Name: "
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8}
+                size_hint: 0.4, 0.12
+                id: namee
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            Label:
+                size_hint: 0.5,0.12
+                pos_hint: {"x":0, "top":0.8-0.13}
+                text: "Email: "
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8-0.13}
+                size_hint: 0.4, 0.12
+                id: email
+                multiline: False
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            Label:
+                size_hint: 0.5,0.12
+                pos_hint: {"x":0, "top":0.8-0.13*2}
+                text: "Password: "
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+            TextInput:
+                pos_hint: {"x":0.5, "top":0.8-0.13*2}
+                size_hint: 0.4, 0.12
+                id: passw
+                multiline: False
+                password: True
+                font_size: (root.width**2 + root.height**2) / 14**4
+
+        Button:
+            pos_hint:{"x":0.3,"y":0.25}
+            size_hint: 0.4, 0.1
+            font_size: (root.width**2 + root.height**2) / 17**4
+            text: "Already have an Account? Log In"
+            on_release:
+                root.manager.transition.direction = "left"
+                root.login()
+
+        Button:
+            pos_hint:{"x":0.2,"y":0.05}
+            size_hint: 0.6, 0.15
+            text: "Submit"
+            font_size: (root.width**2 + root.height**2) / 14**4
+            on_release:
+                root.manager.transition.direction = "left"
+                root.submit()
+
+
+<LoginWindow>:
+    name: "login"
+
+    email: email
+    password: password
+    canvas.before:
+
+		# Color:
+		# 	rgba: 1, 1, 1, 1
+
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+    GridLayout:
+		id: GL
+        rows: 2
+        size: root.width, root.height
+
+        FloatLayout: # camera feed
+			id: FL
+        	size_hint_y: None 
+			height: root.height*1/2
+			size_hint_x: None
+			width: root.width
+
+			#pS.g1.g2.obj_detect:
+
+            # KivyCameraLogin: # login
+                # id: obj_detect2
+                # allow_stretch: True
+                # size_hint: 0.77, 0.84
+                # pos_hint: {"x":0.1, "y":0.15}
+
+        FloatLayout: # Login
+        	size_hint_y: None 
+			height: root.height*1/2
+			size_hint_x: None
+			width: root.width
+
+            Label:
+                color: (0,0,0,1)
+                text:"Email: "
+                font_size: (root.width**2 + root.height**2) / 13**4
+                pos_hint: {"x":0.1, "top":0.9}
+                size_hint: 0.35, 0.15
+
+            TextInput:
+                id: email
+                font_size: (root.width**2 + root.height**2) / 13**4
+                multiline: False
+                pos_hint: {"x": 0.45 , "top":0.9}
+                size_hint: 0.4, 0.15
+
+            Label:
+                color: (0,0,0,1)
+                text:"Password: "
+                font_size: (root.width**2 + root.height**2) / 13**4
+                pos_hint: {"x":0.1, "top":0.7}
+                size_hint: 0.35, 0.15
+
+            TextInput:
+                id: password
+                font_size: (root.width**2 + root.height**2) / 13**4
+                multiline: False
+                password: True
+                pos_hint: {"x": 0.45, "top":0.7}
+                size_hint: 0.4, 0.15
+
+            Button:
+                pos_hint:{"x":0.2,"y":0.05}
+                size_hint: 0.6, 0.2
+                font_size: (root.width**2 + root.height**2) / 13**4
+                text: "Login"
+                on_release:
+                    root.manager.transition.direction = "up"
+                    root.loginBtn()
+
+            Button:
+                pos_hint:{"x":0.3,"y":0.3}
+                size_hint: 0.4, 0.1
+                font_size: (root.width**2 + root.height**2) / 17**4
+                text: "Don't have an Account? Create One"
+                on_release:
+                    root.manager.transition.direction = "right"
+                    root.createBtn()
+
+
+<MainWindow>:
+    n: n
+    email: email
+    created:created
+
+    FloatLayout:
+        Label:
+            id: n
+            pos_hint:{"x": 0.1, "top":0.9}
+            size_hint:0.8, 0.2
+            text: "Account Name: "
+
+        Label:
+            id: email
+            pos_hint:{"x": 0.1, "top":0.7}
+            size_hint:0.8, 0.2
+            text: "Email: "
+
+        Label:
+            id: created
+            pos_hint:{"x": 0.1, "top":0.5}
+            size_hint:0.8, 0.2
+            text: "Created: "
+
+        Button:
+            pos_hint:{"x":0.2, "y": 0.1}
+            size_hint:0.6,0.2
+            text: "Log Out"
+            on_release:
+                app.root.current = "login"
+                root.manager.transition.direction = "down"
