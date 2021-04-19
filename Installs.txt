@@ -1,0 +1,92 @@
+Installing VS - Code:
+
+	sudo apt-get install curl
+
+	curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb -o code-oss_1.32.3-arm64.deb
+
+	sudo dpkg -i code-oss_1.32.3-arm64.deb
+
+	Open code-oss (VS code) 
+		click on Extension icon
+		search python and install
+		close all tabs
+
+	enter ctrl+shift+p
+		enter "select interpreter" and click on it
+		Select Python 3+
+
+
+Installing Matplotlib:
+	
+	sudo apt-get install python3-matplotlib
+
+
+Installing OpenCV
+
+	sudo apt-get install python3-opencv
+
+	sudo apt-get remove python3-opencv (removes a specific version)
+
+
+Installing Prerequisites and Dependencies:
+
+	sudo apt-get update
+
+	sudo apt-get install libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev liblapack-dev libblas-dev gfortran	
+
+	sudo apt-get install python3-pip
+
+	sudo pip3 install -U pip testresources setuptools==49.6.0 
+
+	sudo pip3 install -U numpy==1.19.4 future==0.18.2 mock==3.0.5 h5py==2.10.0 keras_preprocessing==1.1.1 keras_applications==1.0.8 gast==0.2.2 futures protobuf pybind11
+
+
+Installing Facial Recog:
+
+	sudo apt-get install cmake libopenblas-dev liblapack-dev libjpeg-dev
+
+	git clone https://github.com/JetsonHacksNano/installSwapfile
+
+	./installSwapfile/installSwapfile.sh
+
+	sudo reboot now
+
+	wget http://dlib.net/file/dlib-19.17.tar.bz2
+
+	tar jxvf dlib-19.17.tar.bz2
+
+	cd dlib-19.17
+
+	cd dlib
+
+	cd cuda
+
+	gedit cudnn_dlibapi.cpp
+
+		Search for forward_algo = forward_best_algo;
+
+			comment this line of code
+
+	cd ../..	
+
+	sudo python3 setup.py install 
+
+	sudo pip3 install face_recognition
+
+
+
+Installing Voice Recog: (You may need to sudo apt-get some of these or sud apt-get python3-[package_name]
+
+	sudo apt-get install espeak
+
+	sudo apt install mpg12
+
+	sudo pip3 install gTTS	
+
+	pip3 install speechrecognition
+
+	pip install pyaudio
+
+	pip install playsound
+
+	pip install PyObjC
