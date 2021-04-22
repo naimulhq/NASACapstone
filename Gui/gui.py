@@ -42,9 +42,27 @@ class ProcedureScreen(Screen):
         if (cam.currentInstr < len(cam.instructions)-1):
             cam.currentInstr += 1
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+            cam.missedValidations = 0
         elif (cam.currentInstr == len(cam.instructions) - 1):
             cam.currentInstr += 1
             label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
+
+            # Create two csv files: one will hold information about parts and other will hold information about procedure
+            label.text += "Writing Information into CSV Files... "
+
+            with open('Stages.csv',mode='w') as stages_file:
+                stages_file_writer = csv.writer(stages_file,delimiter=',')
+                stages_file_writer.writerow(['Stage Completed', 'Time Completed', 'Missed Validations'])
+                for i in range(len(cam.StageName)):
+                    stages_file_writer.writerow([cam.StageName[i],cam.StageTimeStamps[i],cam.incorrectValidation[i]])
+
+            with open('Parts.csv',mode='w') as parts_file:
+                parts_file_writer = csv.writer(parts_file,delimiter=',')
+                parts_file_writer.writerow(['Object Name', 'Top Left Coordinate', 'Top Right Coordinate', 'Bottom Right Coordinate', 'Bottom Left Coordinate', 'Time Stamped'])
+                for i in range(len(cam.objects)):
+                    parts_file_writer.writerow([cam.objects[i], cam.vertices[i][0],cam.vertices[i][1],cam.vertices[i][2],cam.vertices[i][3],cam.PartTimeStamps[i]])
+
+            label.text += "Writing Complete.\n\n"
         else:
             label.text += "Cannot go forward. The procedure is complete.\n\nClose window or return to main menu.\n\n"
 
@@ -53,6 +71,7 @@ class ProcedureScreen(Screen):
         if (cam.currentInstr > 0):
             cam.currentInstr -= 1
             label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+            cam.missedValidations = 0
         else:
             label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
 
@@ -141,7 +160,7 @@ class MainMenu(Screen):
 
 class StartUp(Screen):
     def checkUser(self):
-        if self.ids.userInput.text == "user" and self.ids.passwordInput.text == "password":
+        if self.ids.userInput.text == "username" and self.ids.passwordInput.text == "password":
              app.sm.current = 'mainMenu'
 
 class Project_Argus(MDApp):
@@ -151,7 +170,6 @@ class Project_Argus(MDApp):
         self.sm.add_widget(MainMenu(name='mainMenu'))
         self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
         return self.sm
-
 
 class KivyCamera(Image):
     def __init__(self, **kwargs):
@@ -167,9 +185,19 @@ class KivyCamera(Image):
         part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
         stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
-	#os.system("sudo modprobe v4l2loopback") for Rishit
-	#os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
-	#time.sleep(5)
+        # Lists will hold information for data collection of procedure
+        self.objects = []
+        self.vertices = []
+        self.PartTimeStamps = []
+        self.StageName = []
+        self.StageTimeStamps = []
+        self.incorrectValidation = []
+        self.missedValidations = 0
+        self.endTime = 0
+
+	    #os.system("sudo modprobe v4l2loopback") for Rishit
+	    #os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
+	    #time.sleep(5)
         # This net used with Part Detection.
         # Change model directory depending on user. Stores labels in same directory as src
 
@@ -195,10 +223,17 @@ class KivyCamera(Image):
             self.labels_stages.append(i.strip('\n'))
         f.close()
 
+        f = open("labels_parts.txt","r")
+        self.labels_parts = []
+        for i in f.readlines():
+            self.labels_parts.append(i.strip('\n'))
+        f.close()
+
         self.timeout = 0
         self.currentInstr, self.stageCount = 0, 0
 
     def update(self, dt):
+        self.beginTime = time.time()
         self.img = self.camera.Capture()
         if not self.isValidate:
             self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
@@ -222,11 +257,18 @@ class KivyCamera(Image):
                 self.stageCount = 0
 
             if self.stageCount == 48:
+                self.StageName.append(self.instructions[self.currentInstr][1])
+                self.incorrectValidation.append(self.missedValidations)
+                self.missedValidations = 0
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
+                self.StageTimeStamps.append(current_time)
                 self.isValidate = False
                 self.currentInstr += 1
                 self.stageCount = 0
                 if(self.currentInstr < len(self.instructions)):
                     label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
+                    self.missedValidations = 0
                 Clock.unschedule(self.clock2)
                 sc = app.sm.get_screen("procedureScreen")
                 if self.currentInstr <= 0:
@@ -266,16 +308,30 @@ class KivyCamera(Image):
                     sc.ids.checklist.text += self.instructions[self.currentInstr+1][1] + "\n\n"
                     sc.ids.checklist.text += self.instructions[self.currentInstr+2][1] + "\n\n"
 
+            if(self.beginTime-self.endTime > 1):
+                for i in range(len(self.detections)):
+                    #if self.isValidate:
+                    #self.objects.append(self.labels_stages[self.detections[i].ClassID-1])
+                    #else:
+                    self.objects.append(self.labels_parts[self.detections[i].ClassID])
+                    # Store box vertices in clockwise order
+                    bottomLeft = (self.detections[i].Left, self.detections[i].Bottom)
+                    bottomRight = (self.detections[i].Right, self.detections[i].Bottom)
+                    topLeft = (self.detections[i].Left, self.detections[i].Top)
+                    topRight = (self.detections[i].Right, self.detections[i].Top)
+                    self.vertices.append((topLeft,topRight,bottomRight,bottomLeft))
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
+                self.PartTimeStamps.append(current_time)
+                self.endTime = time.time()
+
         if self.timeout == 400:
             self.isValidate = False
             label.text += "Validation Unsuccessful. Time expired!\n\n"
+            self.missedValidations += 1
             Clock.unschedule(self.clock2)
             self.timeout = 0
             
-			
-
 if __name__ == "__main__":
     app=Project_Argus()
     app.run()
-
-
