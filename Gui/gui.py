@@ -41,7 +41,8 @@ class ProcedureScreen(Screen):
     def pressed_forward(self,cam,label):
         if (cam.currentInstr < len(cam.instructions)-1):
             cam.currentInstr += 1
-            label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+            label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0]
+            label.text += "\n\nParts required: " + cam.instructions[cam.currentInstr][2][1:-1] + "\n\n"
             cam.missedValidations = 0
         elif (cam.currentInstr == len(cam.instructions) - 1):
             cam.currentInstr += 1
@@ -70,7 +71,8 @@ class ProcedureScreen(Screen):
     def pressed_previous(self,cam,label):
         if (cam.currentInstr > 0):
             cam.currentInstr -= 1
-            label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
+            label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0]
+            label.text += "\n\nParts required: " + cam.instructions[cam.currentInstr][2][1:-1] + "\n\n"
             cam.missedValidations = 0
         else:
             label.text += "Currently on first instruction. Cannot go back a stage.\n\n"
@@ -154,7 +156,7 @@ class MainMenu(Screen):
             label.text = ''
             for row in csvReader:
                 if count == 0:
-                    self.firstStage = str(row[1]) + ": " + str(row[0]) + '\n\n'
+                    self.firstStage = str(row[1]) + ": " + str(row[0]) + "\n\nParts required: " + str(row[2][1:-1]) + "\n\n"
                     count += 1
                 label.text += "     - " + str(row[1]) + ": " + str(row[0]) + '\n'
 
@@ -267,7 +269,8 @@ class KivyCamera(Image):
                 self.currentInstr += 1
                 self.stageCount = 0
                 if(self.currentInstr < len(self.instructions)):
-                    label.text += "Validation Successful\n\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0] + "\n\n"
+                    label.text += "Validation Successful\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
+                    label.text += "\n\nParts required: " + self.instructions[self.currentInstr][2][1:-1] + "\n\n"
                     self.missedValidations = 0
                 Clock.unschedule(self.clock2)
                 sc = app.sm.get_screen("procedureScreen")

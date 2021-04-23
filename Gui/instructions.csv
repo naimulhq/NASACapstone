@@ -1,9 +1,9 @@
-Attach ArbotixM to the Base Plate using 4 M3X6 Socket Heads,Stage 1.2
-Attach Servo Motor 1 to Top Plastic Plate using 10 M2X8 Socket Heads.,Stage 2.1
-Attach F3 Bracket onto Horn of Servo Motor 1 using 4 M2X6 Socket Heads.,Stage 2.2
-Attach Motor 2 onto F3 Bracket using 4 M2X6 Socket Heads (Check that the horn is pointing to the right).,Stage 3.2
-Attach Top Servo Plate to F2 Bracket using 4 M2X8 Socket Heads and 4 M2 Nuts.,Stage 4.1
-Fasten F2 Bracket on Horn Side using 4 M2X6 Socket Heads.,Stage 4.3
-Screw 4 M3X30 Standoff with 4 M3X15 Standoff to create 4 different Standoffs.,Stage 5.1
-Attach Standoffs to Bottom Plate using 4 M3X6 Socket Heads.,Stage 5.2
-Attach Top Plate to Base Plate using 4 M3X6 Socket Heads.,Stage 5.6
+Attach ArbotixM to the Base Plate using 4 M3X6 Socket Heads,Stage 1.2,"“Bottom Plate, Board, 4 M3X6 Screws”"
+Attach Servo Motor 1 to Top Plastic Plate using 10 M2X8 Socket Heads.,Stage 2.1,"“Motor, Top Plate, 10 M2X8 Screws”"
+Attach F3 Bracket onto Horn of Servo Motor 1 using 4 M2X6 Socket Heads.,Stage 2.2,"“F3 Bracket, Stage 2.1, 4 M2X6 Screws”"
+Attach Motor 2 onto F3 Bracket using 4 M2X6 Socket Heads (Check that the horn is pointing to the right).,Stage 3.2,"“Motor, Stage 2.2, 4 M2X6 Screws”"
+Attach Top Servo Plate to F2 Bracket using 4 M2X8 Socket Heads and 4 M2 Nuts.,Stage 4.1,"“F2 Bracket, Mounting Plate, 4 M2 Nuts, 4 M2X8 Screws”"
+Fasten F2 Bracket on Horn Side using 4 M2X6 Socket Heads.,Stage 4.3,"“AX Hub Assembly, Stage 3.2, Stage 4.1, 4 M2X6 Screws”"
+Screw 4 M3X30 Standoff with 4 M3X15 Standoff to create 4 different Standoffs.,Stage 5.1,"“4 M3X15 Standoffs, 4 M3X30 Standoffs”"
+Attach Standoffs to Bottom Plate using 4 M3X6 Socket Heads.,Stage 5.2,"“Stage 1.2, Stage 5.1, 4 M3X6 Screws”"
+Attach Top Plate to Base Plate using 4 M3X6 Socket Heads.,Stage 5.6,"“Stage 4.3, Stage 5.2, 4 M3X6 Screws”"
