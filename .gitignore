@@ -3,3 +3,5 @@
 .jpg
 .jpeg
 __pycache__
+Gui/Parts.csv
+Gui/Stages.csv
