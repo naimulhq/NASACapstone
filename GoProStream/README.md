@@ -5,7 +5,7 @@
 Install the goprostream package.
 This can be done using the command:
 
-pip3 install goprostream
+pip3 install goprocam
 
 ## STEP 2:
 
