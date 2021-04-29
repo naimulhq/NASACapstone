@@ -16,6 +16,7 @@ from kivy.uix.label import Label
 #from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 #from kivy.lang import Builder
 #from kivy.uix.screenmanager import ScreenManager, Screen
 #from kivy.uix.textinput import TextInput
@@ -80,9 +81,13 @@ class ProcedureScreen(Screen):
 
     def beginValidation(self,cam,label):
         if (cam.currentInstr < len(cam.instructions)):
-            cam.isValidate = True
-            label.text += "Begin Validation\n\n"
-            cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
+            instructionString = cam.instructions[cam.currentInstr][1]
+            if(instructionString == "Stage 6.1" or instructionString == "Stage 6.2" or instructionString == "Stage 6.3" ):
+                cam.stageValidatePopup(instructionString,label)
+            else:
+                cam.isValidate = True
+                label.text += "Begin Validation\n\n"
+                cam.clock2 = Clock.schedule_interval(partial(cam.stageValidate, label), 1.0/20)
         else:
             label.text += "Procedure Complete! Can not validate!\n\nClose or return to main menu.\n\n"
 
@@ -196,7 +201,7 @@ class KivyCamera(Image):
         self.incorrectValidation = []
         self.missedValidations = 0
         self.endTime = 0
-
+       
 	    #os.system("sudo modprobe v4l2loopback") for Rishit
 	    #os.system("ffmpeg -thread_queue_size 512 -i rtsp://192.168.1.1/MJPG -vcodec rawvideo -vf scale=1920:1080 -f v4l2 -threads 0 -pix_fmt yuyv422 /dev/video1") for Rishit
 	    #time.sleep(5)
@@ -334,6 +339,54 @@ class KivyCamera(Image):
             self.missedValidations += 1
             Clock.unschedule(self.clock2)
             self.timeout = 0
+
+    def stageValidatePopup(self,instructionStage,label):
+        yesButton = Button(text="Yes")
+        noButton = Button(text="No")
+        yesButton.bind(on_press=partial(self.yesCallback, label))
+        noButton.bind(on_press=partial(self.noCallback, label))
+
+        if(instructionStage == "Stage 6.1"):
+            self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
+            grid1 = GridLayout(rows=2,cols=1)
+            grid1.add_widget(Label(text="Does the Arbotix Board get detected by the computer?"))
+            grid2 = GridLayout(rows=1,cols=2)
+            grid2.add_widget(yesButton)
+            grid2.add_widget(noButton)
+            grid1.add_widget(grid2)
+            self.popup.content = grid1
+            self.popup.open()
+            
+        elif(instructionStage == "Stage 6.2"):
+            self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
+            grid1 = GridLayout(rows=2,cols=1)
+            grid1.add_widget(Label(text="Did the green led on the Arbotix board light up?"))
+            grid2 = GridLayout(rows=1,cols=2)
+            grid2.add_widget(yesButton)
+            grid2.add_widget(noButton)
+            grid1.add_widget(grid2)
+            self.popup.content = grid1
+            self.popup.open()
+            
+        elif(instructionStage == "Stage 6.3"):
+            self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
+            grid1 = GridLayout(rows=2,cols=1)
+            grid1.add_widget(Label(text="Did you see the Robot Turret perform calibration movements?"))
+            grid2 = GridLayout(rows=1,cols=2)
+            grid2.add_widget(yesButton)
+            grid2.add_widget(noButton)
+            grid1.add_widget(grid2)
+            self.popup.content = grid1
+            self.popup.open()
+        else:
+            print("No stage exists.")
+        
+    def yesCallback(self,instance,label):
+        self.popup.dismiss()
+        label.text += "Validation Successful"
+    
+    def noCallback(self,instance,label):
+        self.popup.dismiss()
             
 if __name__ == "__main__":
     app=Project_Argus()
