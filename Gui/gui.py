@@ -355,6 +355,7 @@ class KivyCamera(Image):
             grid2.add_widget(noButton)
             grid1.add_widget(grid2)
             self.popup.content = grid1
+            self.popup.bind(on_open=partial(self.validationOptions, label))
             self.popup.open()
             
         elif(instructionStage == "Stage 6.2"):
@@ -380,13 +381,17 @@ class KivyCamera(Image):
             self.popup.open()
         else:
             print("No stage exists.")
+    
+    def validationOptions(self,label,instance):
+        pass
         
-    def yesCallback(self,instance,label):
-        self.popup.dismiss()
+    def yesCallback(self,label,instance):
         label.text += "Validation Successful"
+        self.popup.dismiss()
     
     def noCallback(self,instance,label):
         self.popup.dismiss()
+        label.text += "Validation Unsuccessful"
             
 if __name__ == "__main__":
     app=Project_Argus()
