@@ -45,7 +45,7 @@ class ProcedureScreen(Screen):
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0]
             label.text += "\n\nParts required: " + cam.instructions[cam.currentInstr][2][1:-1] + "\n\n"
             cam.missedValidations = 0
-        elif (cam.currentInstr == len(cam.instructions) - 1):
+        elif (cam.currentInstr >= len(cam.instructions) - 1):
             cam.currentInstr += 1
             label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
 
@@ -276,7 +276,8 @@ class KivyCamera(Image):
                 if(self.currentInstr < len(self.instructions)):
                     label.text += "Validation Successful\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
                     label.text += "\n\nParts required: " + self.instructions[self.currentInstr][2][1:-1] + "\n\n"
-                    self.missedValidations = 0
+                else:
+                    label.text += "Procedure Complete"
                 Clock.unschedule(self.clock2)
                 sc = app.sm.get_screen("procedureScreen")
                 if self.currentInstr <= 0:
@@ -386,12 +387,25 @@ class KivyCamera(Image):
         pass
         
     def yesCallback(self,label,instance):
-        label.text += "Validation Successful"
+        self.StageName.append(self.instructions[self.currentInstr][1])
+        self.incorrectValidation.append(self.missedValidations)
+        self.missedValidations = 0
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        self.StageTimeStamps.append(current_time)
+        self.isValidate = False
+        self.currentInstr += 1
+        if(self.currentInstr < len(self.instructions)):
+            label.text += "Validation Successful\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
+            label.text += "\n\nParts required: " + self.instructions[self.currentInstr][2][1:-1] + "\n\n"
+        else:
+            label.text += "\nProcedure Complete"
         self.popup.dismiss()
     
-    def noCallback(self,instance,label):
+    def noCallback(self,label,instance):
         self.popup.dismiss()
-        label.text += "Validation Unsuccessful"
+        self.missedValidations += 1
+        label.text += "\nValidation Unsuccessful\n"
             
 if __name__ == "__main__":
     app=Project_Argus()
