@@ -47,6 +47,7 @@ import time
 
 class ProcedureScreen(Screen):
     def pressed_forward(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr < len(cam.instructions)-1):
             cam.currentInstr += 1
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
@@ -58,6 +59,7 @@ class ProcedureScreen(Screen):
 
 
     def pressed_previous(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr > 0):
             cam.currentInstr -= 1
             label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0] +"\n\n"
@@ -66,6 +68,7 @@ class ProcedureScreen(Screen):
 
 
     def beginValidation(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr < len(cam.instructions)):
             cam.isValidate = True
             label.text += "Begin Validation\n\n"
@@ -74,6 +77,7 @@ class ProcedureScreen(Screen):
             label.text += "Procedure Complete! Can not validate!\n\nClose or return to main menu.\n\n"
 
     def updateChecklist(self,cam,label,fix):
+        cam=app.camera
         temp = cam.currentInstr + fix
         if temp <= 0:
             label.text += cam.instructions[0][1] + " - Current\n\n"
@@ -156,6 +160,8 @@ class Project_Argus(MDApp):
 
     def build(self):
         self.camera = KivyCamera(allow_stretch=True,size_hint=(0.77, 0.84),pos_hint={"x":0.1, "y":0.15})
+        # self.dictionary=dict()
+        # self.dictionary['obj_detect']=self.camera
         self.camBool = True
         self.sm = ScreenManager()
         #self.sm.add_widget(StartUp(name='startUp'))
@@ -183,10 +189,10 @@ class KivyCamera(Image):    # procedure
         self.Encodings=[]
         self.Names=[]
         self.fpsReport=0
-        self.scaleFactor=.25
+        self.scaleFactor=.20
         self.timestamp = time.time()
         self.counter = 0
-        with open('/home/edwin/FR/train.pkl','rb') as f:
+        with open('/home/edwin/FR/train2.pkl','rb') as f:
             self.Names=pickle.load(f)
             self.Encodings=pickle.load(f)
 
@@ -234,10 +240,10 @@ class KivyCamera(Image):    # procedure
 
         self.timeout = 0
         self.currentInstr, self.stageCount = 0, 0
-        self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+        #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+        self.camera=cv2.VideoCapture('/dev/video0')
     #     #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
-
 
     # @staticmethod
     # def makeCamera(self):
@@ -247,12 +253,12 @@ class KivyCamera(Image):    # procedure
     #     print("DOPETTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTE")
 
     def update(self, dt):
-        self.img = self.camera.Capture()
-
+        #self.img = self.camera.Capture()
+        _,self.img = self.camera.read()
         if app.camBool:
-            # _,self.img = self.camera.read()
+
             #self.img = self.camera.Capture()
-            self.img = jetson.utils.cudaToNumpy(self.img)
+            #self.img = jetson.utils.cudaToNumpy(self.img)
             frame_small=cv2.resize(self.img,(0,0),fx=self.scaleFactor,fy=self.scaleFactor)
             frameRGB=cv2.cvtColor(frame_small,cv2.COLOR_BGR2RGB)
             facePositions=face_recognition.face_locations(frameRGB)#,model='cnn')
@@ -263,21 +269,22 @@ class KivyCamera(Image):    # procedure
                 if True in matches:
                     first_match_index=matches.index(True)
                     name=self.Names[first_match_index]
-                if name == "Edwin Varela" or "Naimul Hoque" or "Abel Semma" or "Rishit Arora" or "Oles Bober":
-                    self.counter+=1
-                    if self.counter>30:
+                    if name == "Edwin Varela" or name == "Naimul Hoque" or name == "Abel Semma" or name == "Rishit Arora" or name == "Oles Bober":
+                        self.counter+=1
+                        if self.counter>50:
+                            self.counter=0
+                            MainWindow.current = "edwin@gmail.com"
+                            app.sm.current = "mainMenu"
+                            app.camBool = False
+                            sc = app.sm.get_screen("login")
+                            sc.ids.FL.remove_widget(app.camera)
+                            sc2 = app.sm.get_screen("procedureScreen")
+                            sc2.ids.g2.add_widget(app.camera)
+
+                            #self.camera.release()
+                            #cv2.destroyAllWindows() 
+                    else:
                         self.counter=0
-                        MainWindow.current = "edwin@gmail.com"
-                        app.sm.current = "mainMenu"
-                        app.camBool = False
-                        sc = app.sm.get_screen("login")
-                        sc.ids.FL.remove_widget(app.camera)
-                        sc2 = app.sm.get_screen("procedureScreen")
-                        sc2.ids.g2.add_widget(app.camera)
-
-                        #self.camera.release()
-                        #cv2.destroyAllWindows() 
-
                 top=int(top/self.scaleFactor)
                 right=int(right/self.scaleFactor)
                 bottom=int(bottom/self.scaleFactor)
@@ -295,12 +302,12 @@ class KivyCamera(Image):    # procedure
             buf1 = cv2.flip(self.img,0)
             buf = buf1.tostring()
             image_texture = Texture.create(size=(self.img.shape[1],self.img.shape[0]),colorfmt='rgb')
-            image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
+            image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
             self.texture = image_texture
             cv2.destroyAllWindows()
 
         else:
-
+            self.img = jetson.utils.cudaFromNumpy(self.img)
             if not self.isValidate:
                 self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
             else:
@@ -309,7 +316,7 @@ class KivyCamera(Image):    # procedure
             buf1 = cv2.flip(array,0)
             buf = buf1.tostring()
             image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
-            image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
+            image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
             self.texture = image_texture
 
     def stageValidate(self,label,dt):
@@ -378,75 +385,75 @@ class KivyCamera(Image):    # procedure
 ################################################################
 
 
-class KivyCameraLogin(Image):
-    def __init__(self, **kwargs):
-        super(KivyCameraLogin, self).__init__(**kwargs)
+# class KivyCameraLogin(Image):
+#     def __init__(self, **kwargs):
+#         super(KivyCameraLogin, self).__init__(**kwargs)
 
-        self.font=cv2.FONT_HERSHEY_SIMPLEX
-        self.Encodings=[]
-        self.Names=[]
-        self.fpsReport=0
-        self.scaleFactor=.25
-        self.timestamp = time.time()
-        self.counter = 0
-        with open('/home/edwin/FR/train.pkl','rb') as f:
-            self.Names=pickle.load(f)
-            self.Encodings=pickle.load(f)
+#         self.font=cv2.FONT_HERSHEY_SIMPLEX
+#         self.Encodings=[]
+#         self.Names=[]
+#         self.fpsReport=0
+#         self.scaleFactor=.25
+#         self.timestamp = time.time()
+#         self.counter = 0
+#         with open('/home/edwin/FR/train.pkl','rb') as f:
+#             self.Names=pickle.load(f)
+#             self.Encodings=pickle.load(f)
         
-        #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
-        #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
-        self.camera = cv2.VideoCapture('/dev/video0')
-        #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
-        self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
+#         #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
+#         #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
+#         self.camera = cv2.VideoCapture('/dev/video0')
+#         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
+#         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
 
-    def update(self, dt):
-        _,self.img = self.camera.read()
-        #self.img = self.camera.Capture()
-        #self.img = jetson.utils.cudaToNumpy(self.img)
-        frame_small=cv2.resize(self.img,(0,0),fx=self.scaleFactor,fy=self.scaleFactor)
-        frameRGB=cv2.cvtColor(frame_small,cv2.COLOR_BGR2RGB)
-        facePositions=face_recognition.face_locations(frameRGB)#,model='cnn')
-        allEncodings=face_recognition.face_encodings(frameRGB,facePositions)
-        for (top,right,bottom,left),face_encoding in zip(facePositions,allEncodings):
-            name='Unknown Person'
-            matches=face_recognition.compare_faces(self.Encodings,face_encoding)
-            if True in matches:
-                first_match_index=matches.index(True)
-                name=self.Names[first_match_index]
-            if name == "Edwin Varela":
-                self.counter+=1
-                if self.counter>30:
-                    self.counter=0
-                    MainWindow.current = "edwin@gmail.com"
-                    app.sm.current = "mainMenu"
-                    sc = app.sm.get_screen("login")
-                    sc.ids.FL.remove_widget(app.camera)
-                    sc2 = app.sm.get_screen("procedureScreen")
-                    sc2.ids.g2.add_widget(app.camera)
+#     def update(self, dt):
+#         _,self.img = self.camera.read()
+#         #self.img = self.camera.Capture()
+#         #self.img = jetson.utils.cudaToNumpy(self.img)
+#         frame_small=cv2.resize(self.img,(0,0),fx=self.scaleFactor,fy=self.scaleFactor)
+#         frameRGB=cv2.cvtColor(frame_small,cv2.COLOR_BGR2RGB)
+#         facePositions=face_recognition.face_locations(frameRGB)#,model='cnn')
+#         allEncodings=face_recognition.face_encodings(frameRGB,facePositions)
+#         for (top,right,bottom,left),face_encoding in zip(facePositions,allEncodings):
+#             name='Unknown Person'
+#             matches=face_recognition.compare_faces(self.Encodings,face_encoding)
+#             if True in matches:
+#                 first_match_index=matches.index(True)
+#                 name=self.Names[first_match_index]
+#             if name == "Edwin Varela":
+#                 self.counter+=1
+#                 if self.counter>30:
+#                     self.counter=0
+#                     MainWindow.current = "edwin@gmail.com"
+#                     app.sm.current = "mainMenu"
+#                     sc = app.sm.get_screen("login")
+#                     sc.ids.FL.remove_widget(app.camera)
+#                     sc2 = app.sm.get_screen("procedureScreen")
+#                     sc2.ids.g2.add_widget(app.camera)
 
-                    #self.camera.release()
-                    #cv2.destroyAllWindows() 
+#                     #self.camera.release()
+#                     #cv2.destroyAllWindows() 
 
-            top=int(top/self.scaleFactor)
-            right=int(right/self.scaleFactor)
-            bottom=int(bottom/self.scaleFactor)
-            left=int(left/self.scaleFactor)
-            cv2.rectangle(self.img,(left,top),(right,bottom),(255,0,0),2)
-            cv2.putText(self.img,name,(left,top-6),self.font,.75,(0,255,255),1)
+#             top=int(top/self.scaleFactor)
+#             right=int(right/self.scaleFactor)
+#             bottom=int(bottom/self.scaleFactor)
+#             left=int(left/self.scaleFactor)
+#             cv2.rectangle(self.img,(left,top),(right,bottom),(255,0,0),2)
+#             cv2.putText(self.img,name,(left,top-6),self.font,.75,(0,255,255),1)
 
-        dt=time.time() - self.timestamp
-        fps=1/dt
-        self.fpsReport=.95*self.fpsReport + .05*fps
-        cv2.rectangle(self.img,(0,0),(100,40),(255,0,0),-1)
-        cv2.putText(self.img,str(round(self.fpsReport,1)) + ' fps ',(0,25),self.font,.75,(0,255,255),1)
-        self.timestamp = time.time()
+#         dt=time.time() - self.timestamp
+#         fps=1/dt
+#         self.fpsReport=.95*self.fpsReport + .05*fps
+#         cv2.rectangle(self.img,(0,0),(100,40),(255,0,0),-1)
+#         cv2.putText(self.img,str(round(self.fpsReport,1)) + ' fps ',(0,25),self.font,.75,(0,255,255),1)
+#         self.timestamp = time.time()
 
-        buf1 = cv2.flip(self.img,0)
-        buf = buf1.tostring()
-        image_texture = Texture.create(size=(self.img.shape[1],self.img.shape[0]),colorfmt='rgb')
-        image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
-        self.texture = image_texture
-        cv2.destroyAllWindows()
+#         buf1 = cv2.flip(self.img,0)
+#         buf = buf1.tostring()
+#         image_texture = Texture.create(size=(self.img.shape[1],self.img.shape[0]),colorfmt='rgb')
+#         image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
+#         self.texture = image_texture
+#         cv2.destroyAllWindows()
 
 
 
