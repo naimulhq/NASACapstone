@@ -1,12 +1,10 @@
 import os
 os.system("sudo killall ibus-daemon")
+os.system("./preSetup.sh")
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', 1214)	# DON'T CHANGE THIS
 Config.set('graphics', 'height', 743)	# DON'T CHANGE THIS
-# from kivy.logger import Logger
-# import logging
-# Logger.setLevel(logging.TRACE)
 
 import kivy
 from kivy.app import App
@@ -129,6 +127,14 @@ class ProcedureScreen(Screen):
             label.text += cam.instructions[temp][1] + " - Current\n\n"
             label.text += cam.instructions[temp+1][1] + "\n\n"
             label.text += cam.instructions[temp+2][1] + "\n\n"
+
+    def openPreview(self,cam):
+        instructionStage = cam.instructions[cam.currentInstr][1]
+        self.popup = Popup(title=instructionStage + " Preview",size_hint=(None, None), size=(400, 400))
+        filename = instructionStage.replace(" ","")
+        img = Image(source="StageImages/"+filename+".jpg")
+        self.popup.content = img
+        self.popup.open()
 
 button_exist=False
 class MainMenu(Screen):

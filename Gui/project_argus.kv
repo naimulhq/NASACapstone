@@ -150,7 +150,7 @@
 					id: instruction_list
 					color: (0,0,0,1)
 					text_size: self.size
-					pos: 300,469
+					pos: 300,410
 			
 <ProcedureScreen>
 	canvas.before:
@@ -181,7 +181,7 @@
             	pos_hint: {"x":0.01, "y":0.15}
 
 		GridLayout: # Top Right - Buttons
-			rows:4
+			rows:5
 			size_hint_y:None 
 			height:root.height*7/10-6
 			size_hint_x:None
@@ -205,6 +205,10 @@
 				text: "Forward"
 				on_press: root.pressed_forward(obj_detect,bottomleft)
 				on_press: root.updateChecklist(obj_detect,checklist,1)
+			
+			Button:
+				text: "Show Stage Preview"
+				on_press: root.openPreview(obj_detect)
 				     			 
 		GridLayout: # Bottom Left - Text output
 			cols: 2
