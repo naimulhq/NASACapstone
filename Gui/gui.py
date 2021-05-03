@@ -35,9 +35,18 @@ import time
 from datetime import datetime
 from functools import partial
 
+from kivy.properties import ObjectProperty
+from database import DataBase
+from kivy.uix.popup import Popup
+from kivy.lang import Builder
+
+import face_recognition
+import pickle
+import time
 
 class ProcedureScreen(Screen):
     def pressed_forward(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr < len(cam.instructions)-1):
             cam.currentInstr += 1
             label.text += "Forward:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0]
@@ -68,6 +77,7 @@ class ProcedureScreen(Screen):
 
 
     def pressed_previous(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr > 0):
             cam.currentInstr -= 1
             label.text += "Previous:\n\n" + cam.instructions[cam.currentInstr][1] + ": " + cam.instructions[cam.currentInstr][0]
@@ -78,6 +88,7 @@ class ProcedureScreen(Screen):
 
 
     def beginValidation(self,cam,label):
+        cam=app.camera
         if (cam.currentInstr < len(cam.instructions)):
             instructionString = cam.instructions[cam.currentInstr][1]
             if(instructionString == "Stage 6.1" or instructionString == "Stage 6.2" or instructionString == "Stage 6.3" ):
@@ -90,6 +101,7 @@ class ProcedureScreen(Screen):
             label.text += "Procedure Complete! Can not validate!\n\nClose or return to main menu.\n\n"
 
     def updateChecklist(self,cam,label,fix):
+        cam=app.camera
         temp = cam.currentInstr + fix
         if temp <= 0:
             label.text += cam.instructions[0][1] + " - Current\n\n"
@@ -129,6 +141,7 @@ class ProcedureScreen(Screen):
             label.text += cam.instructions[temp+2][1] + "\n\n"
 
     def openPreview(self,cam):
+        cam=app.camera
         instructionStage = cam.instructions[cam.currentInstr][1]
         self.popup = Popup(title=instructionStage + " Preview",size_hint=(None, None), size=(400, 400))
         filename = instructionStage.replace(" ","")
@@ -178,23 +191,41 @@ class StartUp(Screen):
 
 class Project_Argus(MDApp):
     def build(self):
+        # self.sm = ScreenManager()
+        # self.sm.add_widget(StartUp(name='startUp'))
+        # self.sm.add_widget(MainMenu(name='mainMenu'))
+        # self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
+        # return self.sm
+        self.camera = KivyCamera(allow_stretch=True,size_hint=(0.77, 0.84),pos_hint={"x":0.1, "y":0.15})
+        self.camBool = True
         self.sm = ScreenManager()
-        self.sm.add_widget(StartUp(name='startUp'))
+        #self.sm.add_widget(StartUp(name='startUp'))
+        self.sm.add_widget(LoginWindow(name='login'))
+        self.sm.add_widget(CreateAccountWindow(name='create'))
         self.sm.add_widget(MainMenu(name='mainMenu'))
         self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
+        sc = app.sm.get_screen("login")
+        sc.ids.FL.add_widget(self.camera)
         return self.sm
+
 
 class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
-        # self.capture = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
-        # Ask user for names of parts and stages model. Only for testing purposes.
+
+        self.camera=None
+        self.font=cv2.FONT_HERSHEY_SIMPLEX
+        self.Encodings=[]
+        self.Names=[]
+        self.fpsReport=0
+        self.scaleFactor=.20
+        self.timestamp = time.time()
+        self.counter = 0
+        with open('train2.pkl','rb') as f:
+            self.Names=pickle.load(f)
+            self.Encodings=pickle.load(f)
+
         dirs = os.listdir('/home')
-        #part_model_name = input("Enter part model name with extension: ")
-        #stage_model_name = input("Enter stage model name with extension: ")
-        dirs = os.listdir('/home')
-        #part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/' + str(part_model_name)
-        #stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/' + str(stage_model_name)
         part_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/PartDetection/All_Parts.onnx'
         stage_model_path = '/home/'+ str(dirs[0]) + '/Capstone/models/Stages/All_Stages.onnx'
 
@@ -216,9 +247,11 @@ class KivyCamera(Image):
 
         self.part_net = jetson.inference.detectNet(argv=['--model='+part_model_path,'--labels=./labels_parts.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
         self.stages_net = jetson.inference.detectNet(argv=['--model='+stage_model_path,'--labels=./labels_stages.txt','--input_blob=input_0','--output-cvg=scores','--output-bbox=boxes','--threshold=.9'])
-        self.camera = jetson.utils.videoSource("csi://0") #csi://0 
+        #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
         #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
+        self.camera=cv2.VideoCapture('/dev/video0')
+
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
         self.clock2 = None
         self.isComplete = False
@@ -228,7 +261,7 @@ class KivyCamera(Image):
             reader = csv.reader(file)
             self.instructions = list(reader)
 
-        print(self.instructions)
+        #print(self.instructions)
 
         f = open("labels_stages.txt","r")
         self.labels_stages = []
@@ -246,18 +279,85 @@ class KivyCamera(Image):
         self.currentInstr, self.stageCount = 0, 0
 
     def update(self, dt):
-        self.beginTime = time.time()
-        self.img = self.camera.Capture()
-        if not self.isValidate:
-            self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
+        # self.beginTime = time.time()
+        # self.img = self.camera.Capture()
+        # if not self.isValidate:
+        #     self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
+        # else:
+        #     self.stages = self.stages_net.Detect(self.img)
+        # array = jetson.utils.cudaToNumpy(self.img)
+        # buf1 = cv2.flip(array,0)
+        # buf = buf1.tostring()
+        # image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
+        # image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
+        # self.texture = image_texture
+                #self.img = self.camera.Capture()
+        _,self.img = self.camera.read()
+        if app.camBool:
+
+            #self.img = self.camera.Capture()
+            #self.img = jetson.utils.cudaToNumpy(self.img)
+            frame_small=cv2.resize(self.img,(0,0),fx=self.scaleFactor,fy=self.scaleFactor)
+            frameRGB=cv2.cvtColor(frame_small,cv2.COLOR_BGR2RGB)
+            facePositions=face_recognition.face_locations(frameRGB)#,model='cnn')
+            allEncodings=face_recognition.face_encodings(frameRGB,facePositions)
+            for (top,right,bottom,left),face_encoding in zip(facePositions,allEncodings):
+                name='Unknown Person'
+                matches=face_recognition.compare_faces(self.Encodings,face_encoding)
+                if True in matches:
+                    first_match_index=matches.index(True)
+                    name=self.Names[first_match_index]
+                    if name == "Edwin Varela" or name == "Naimul Hoque" or name == "Abel Semma" or name == "Rishit Arora" or name == "Oles Bober":
+                        self.counter+=1
+                        if self.counter>50:
+                            self.counter=0
+                            MainWindow.current = "edwin@gmail.com"
+                            app.sm.current = "mainMenu"
+                            app.camBool = False
+                            sc = app.sm.get_screen("login")
+                            sc.ids.FL.remove_widget(app.camera)
+                            sc2 = app.sm.get_screen("procedureScreen")
+                            sc2.ids.g2.add_widget(app.camera)
+
+                            #self.camera.release()
+                            #cv2.destroyAllWindows() 
+                    else:
+                        self.counter=0
+                top=int(top/self.scaleFactor)
+                right=int(right/self.scaleFactor)
+                bottom=int(bottom/self.scaleFactor)
+                left=int(left/self.scaleFactor)
+                cv2.rectangle(self.img,(left,top),(right,bottom),(255,0,0),2)
+                cv2.putText(self.img,name,(left,top-6),self.font,.75,(0,255,255),1)
+
+            dt=time.time() - self.timestamp
+            fps=1/dt
+            self.fpsReport=.95*self.fpsReport + .05*fps
+            cv2.rectangle(self.img,(0,0),(100,40),(255,0,0),-1)
+            cv2.putText(self.img,str(round(self.fpsReport,1)) + ' fps ',(0,25),self.font,.75,(0,255,255),1)
+            self.timestamp = time.time()
+
+            buf1 = cv2.flip(self.img,0)
+            buf = buf1.tostring()
+            image_texture = Texture.create(size=(self.img.shape[1],self.img.shape[0]),colorfmt='rgb')
+            image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
+            self.texture = image_texture
+            cv2.destroyAllWindows()
+
         else:
-            self.stages = self.stages_net.Detect(self.img)
-        array = jetson.utils.cudaToNumpy(self.img)
-        buf1 = cv2.flip(array,0)
-        buf = buf1.tostring()
-        image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
-        image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
-        self.texture = image_texture
+            self.img = jetson.utils.cudaFromNumpy(self.img)
+            if not self.isValidate:
+                self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
+            else:
+                self.stages = self.stages_net.Detect(self.img)
+            array = jetson.utils.cudaToNumpy(self.img)
+            buf1 = cv2.flip(array,0)
+            buf = buf1.tostring()
+            image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
+            image_texture.blit_buffer(buf,colorfmt='bgr',bufferfmt='ubyte')
+            self.texture = image_texture
+
+
 
     def stageValidate(self,label,dt):
         self.timeout += 1
@@ -389,8 +489,8 @@ class KivyCamera(Image):
         else:
             print("No stage exists.")
     
-    def validationOptions(self,label,instance):
-        pass
+    # def validationOptions(self,label,instance):
+    #     pass
         
     def yesCallback(self,label,instance):
         self.StageName.append(self.instructions[self.currentInstr][1])
@@ -413,6 +513,99 @@ class KivyCamera(Image):
         self.missedValidations += 1
         label.text += "\nValidation Unsuccessful\n"
             
+######################################
+class CreateAccountWindow(Screen):
+    namee = ObjectProperty(None)
+    email = ObjectProperty(None)
+    password = ObjectProperty(None)
+
+    def submit(self):
+        if self.namee.text != "" and self.email.text != "" and self.email.text.count("@") == 1 and self.email.text.count(".") > 0:
+            if self.password != "":
+                db.add_user(self.email.text, self.password.text, self.namee.text)
+
+                self.reset()
+
+                sm.current = "login"
+            else:
+                invalidForm()
+        else:
+            invalidForm()
+
+    def login(self):
+        self.reset()
+        app.sm.current = "login"
+
+    def reset(self):
+        self.email.text = ""
+        self.password.text = ""
+        self.namee.text = ""
+
+
+class LoginWindow(Screen):
+    email = ObjectProperty(None)
+    password = ObjectProperty(None)
+
+    def loginBtn(self):
+        if db.validate(self.email.text, self.password.text):
+            #MainWindow.current = self.email.text
+            #self.reset()
+            app.sm.current = "mainMenu"
+            app.camBool = False
+            sc = app.sm.get_screen("login")
+            sc.ids.FL.remove_widget(app.camera)
+            sc2 = app.sm.get_screen("procedureScreen")
+            sc2.ids.g2.add_widget(app.camera)
+
+        else:
+            invalidLogin()
+
+    def createBtn(self):
+        self.reset()
+        app.sm.current = "create"
+
+    def reset(self):
+        self.email.text = ""
+        self.password.text = ""
+
+
+class MainWindow(Screen):
+    n = ObjectProperty(None)
+    created = ObjectProperty(None)
+    email = ObjectProperty(None)
+    current = ""
+
+    def logOut(self):
+        app.sm.current = "login"
+
+    def on_enter(self, *args):
+        password, name, created = db.get_user(self.current)
+        self.n.text = "Account Name: " + name
+        self.email.text = "Email: " + self.current
+        self.created.text = "Created On: " + created
+
+
+class WindowManager(ScreenManager):
+    pass
+
+
+def invalidLogin():
+    pop = Popup(title='Invalid Login',
+                  content=Label(text='Invalid username or password.'),
+                  size_hint=(None, None), size=(400, 400))
+    pop.open()
+
+
+def invalidForm():
+    pop = Popup(title='Invalid Form',
+                  content=Label(text='Please fill in all inputs with valid information.'),
+                  size_hint=(None, None), size=(400, 400))
+
+    pop.open()			
+##################
+
+
 if __name__ == "__main__":
+    db = DataBase("users.txt")
     app=Project_Argus()
     app.run()
