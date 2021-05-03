@@ -51,7 +51,7 @@ Installing Facial Recog:
 
 	sudo reboot now
 
-	wget http://dlib.net/file/dlib-19.17.tar.bz2
+	wget http://dlib.net/files/dlib-19.17.tar.bz2
 
 	tar jxvf dlib-19.17.tar.bz2
 
