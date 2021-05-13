@@ -9,4 +9,4 @@ Attach Standoffs to Bottom Plate using 4 M3X6 Socket Heads.,Stage 5.2,"“Stage 
 Attach Top Plate to Base Plate using 4 M3X6 Socket Heads.,Stage 5.6,"“Stage 4.3, Stage 5.2, 4 M3X6 Screws”"
 Attach FTDI Cable to Laptop and Arbotix Board.,Stage 6.1,"“FTDI Cable, Arbotix Board”"
 Attach Power Jack to Arbotix Board and plug into wall socket.,Stage 6.2,"“Power Jack, Arbotix Board”"
-Run Robot Turret Simple Test Script.,Stage 6.3,"“”"
+Run Robot Turret Simple Test Script.,Stage 6.3,“None”

@@ -53,7 +53,7 @@ class ProcedureScreen(Screen):
             label.text += "\n\nParts required: " + cam.instructions[cam.currentInstr][2][1:-1] + "\n\n"
             cam.missedValidations = 0
         elif (cam.currentInstr >= len(cam.instructions) - 1):
-            cam.currentInstr += 1
+            #cam.currentInstr += 1
             label.text += "Procedure Complete!\n\nClose window or return to main menu.\n\n"
 
             # Create two csv files: one will hold information about parts and other will hold information about procedure
@@ -196,6 +196,7 @@ class Project_Argus(MDApp):
         # self.sm.add_widget(MainMenu(name='mainMenu'))
         # self.sm.add_widget(ProcedureScreen(name='procedureScreen'))
         # return self.sm
+        # 0.77, 0.84
         self.camera = KivyCamera(allow_stretch=True,size_hint=(0.77, 0.84),pos_hint={"x":0.1, "y":0.15})
         self.camBool = True
         self.sm = ScreenManager()
@@ -208,6 +209,7 @@ class Project_Argus(MDApp):
         sc.ids.FL.add_widget(self.camera)
         return self.sm
 
+    
 
 class KivyCamera(Image):
     def __init__(self, **kwargs):
@@ -250,7 +252,9 @@ class KivyCamera(Image):
         #self.camera = jetson.utils.videoSource("csi://0") #csi://0 
         #self.camera = jetson.utils.videoSource("/dev/video0")# '/dev/video0'for Edwin '/dev/video1' for Rishit
         #self.display = jetson.utils.videoOutput() # 'my_video.mp4' for file
-        self.camera=cv2.VideoCapture('/dev/video0')
+        self.camera=cv2.VideoCapture("/dev/video0")
+        #self.camera=cv2.VideoCapture('udp://127.0.0.1:10000')
+	#self.camera = cv2.VideoCapture("rtsp://192.168.1.1/MJPG")
 
         self.clock = Clock.schedule_interval(self.update, 1.0 / 20)
         self.clock2 = None
@@ -279,7 +283,7 @@ class KivyCamera(Image):
         self.currentInstr, self.stageCount = 0, 0
 
     def update(self, dt):
-        # self.beginTime = time.time()
+        self.beginTime = time.time()
         # self.img = self.camera.Capture()
         # if not self.isValidate:
         #     self.detections = self.part_net.Detect(self.img) # Holds all the valuable Information
@@ -291,7 +295,7 @@ class KivyCamera(Image):
         # image_texture = Texture.create(size=(array.shape[1],array.shape[0]),colorfmt='rgb')
         # image_texture.blit_buffer(buf,colorfmt='rgb',bufferfmt='ubyte')
         # self.texture = image_texture
-                #self.img = self.camera.Capture()
+        #self.img = self.camera.Capture()
         _,self.img = self.camera.read()
         if app.camBool:
 
@@ -464,6 +468,8 @@ class KivyCamera(Image):
             self.popup.content = grid1
             self.popup.bind(on_open=partial(self.validationOptions, label))
             self.popup.open()
+
+
             
         elif(instructionStage == "Stage 6.2"):
             self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
@@ -485,12 +491,13 @@ class KivyCamera(Image):
             grid2.add_widget(noButton)
             grid1.add_widget(grid2)
             self.popup.content = grid1
+            #self.popup.bind(on_open=partial(self.validationOptions, label))
             self.popup.open()
         else:
             print("No stage exists.")
     
-    # def validationOptions(self,label,instance):
-    #     pass
+    def validationOptions(self,label,instance):
+        pass
         
     def yesCallback(self,label,instance):
         self.StageName.append(self.instructions[self.currentInstr][1])
@@ -501,17 +508,49 @@ class KivyCamera(Image):
         self.StageTimeStamps.append(current_time)
         self.isValidate = False
         self.currentInstr += 1
+        app.sm.current="procedureScreen"
+        sc = app.sm.get_screen("procedureScreen")
         if(self.currentInstr < len(self.instructions)):
             label.text += "Validation Successful\n\n" + self.instructions[self.currentInstr][1] + ": " + self.instructions[self.currentInstr][0]
             label.text += "\n\nParts required: " + self.instructions[self.currentInstr][2][1:-1] + "\n\n"
+            if(self.currentInstr == 9):
+                sc.ids.checklist.text += "Stage 5.2 - Done\n\n"
+                sc.ids.checklist.text += "Stage 5.6 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.1 - Current\n\n"
+                sc.ids.checklist.text += "Stage 6.2\n\n"
+                sc.ids.checklist.text += "Stage 6.3\n\n"
+            elif(self.currentInstr == 10):
+                sc.ids.checklist.text += "Stage 5.2 - Done\n\n"
+                sc.ids.checklist.text += "Stage 5.6 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.1 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.2 - Current\n\n"
+                sc.ids.checklist.text += "Stage 6.3\n\n"
+            elif(self.currentInstr == 11):
+                sc.ids.checklist.text += "Stage 5.2 - Done\n\n"
+                sc.ids.checklist.text += "Stage 5.6 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.1 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.2 - Done\n\n"
+                sc.ids.checklist.text += "Stage 6.3 - Current\n\n"
         else:
-            label.text += "\nProcedure Complete"
+            #pass
+            label.text += "Procedure Complete\n\n"
+            sc.ids.checklist.text += "Stage 5.2 - Done\n\n"
+            sc.ids.checklist.text += "Stage 5.6 - Done\n\n"
+            sc.ids.checklist.text += "Stage 6.1 - Done\n\n"
+            sc.ids.checklist.text += "Stage 6.2 - Done\n\n"
+            sc.ids.checklist.text += "Stage 6.3 - Done\n\n"
+
+
+
+
         self.popup.dismiss()
+
+
     
     def noCallback(self,label,instance):
         self.popup.dismiss()
         self.missedValidations += 1
-        label.text += "\nValidation Unsuccessful\n"
+        label.text += "Validation Unsuccessful\n\n"
             
 ######################################
 class CreateAccountWindow(Screen):
