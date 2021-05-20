@@ -303,6 +303,13 @@
     email: email
     password: passw
 
+	canvas.before:
+
+		Rectangle:
+			pos: self.pos
+			size: self.size
+			source: 'OuterSpace.jpg'
+
     FloatLayout:
         cols:1
 
@@ -310,14 +317,14 @@
             size: root.width, root.height/2
             
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 text: "Create an Account"
                 size_hint: 0.8, 0.2
                 pos_hint: {"x":0.1, "top":1}
                 font_size: (root.width**2 + root.height**2) / 14**4
 
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 size_hint: 0.5,0.12
                 pos_hint: {"x":0, "top":0.8}
                 text: "Name: "
@@ -331,7 +338,7 @@
                 font_size: (root.width**2 + root.height**2) / 14**4
 
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 size_hint: 0.5,0.12
                 pos_hint: {"x":0, "top":0.8-0.13}
                 text: "Email: "
@@ -345,7 +352,7 @@
                 font_size: (root.width**2 + root.height**2) / 14**4
 
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 size_hint: 0.5,0.12
                 pos_hint: {"x":0, "top":0.8-0.13*2}
                 text: "Password: "
@@ -390,6 +397,8 @@
 		Rectangle:
 			pos: self.pos
 			size: self.size
+			source: 'OuterSpace.jpg'
+			
 
     GridLayout:
 		id: GL
@@ -410,7 +419,7 @@
 			width: root.width
 
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 text:"Email: "
                 font_size: (root.width**2 + root.height**2) / 14**4
                 pos_hint: {"x":0.1, "top":0.9}
@@ -424,7 +433,7 @@
                 size_hint: 0.4, 0.15
 
             Label:
-                color: (0,0,0,1)
+                color: 1,1,1,1
                 text:"Password: "
                 font_size: (root.width**2 + root.height**2) / 14**4
                 pos_hint: {"x":0.1, "top":0.7}

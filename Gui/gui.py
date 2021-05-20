@@ -455,7 +455,7 @@ class KivyCamera(Image):
         yesButton = Button(text="Yes")
         noButton = Button(text="No")
         yesButton.bind(on_press=partial(self.yesCallback, label))
-        noButton.bind(on_press=partial(self.noCallback, label))
+        noButton.bind(on_press=partial(self.noCallback, label, instructionStage))
 
         if(instructionStage == "Stage 6.1"):
             self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
@@ -485,7 +485,7 @@ class KivyCamera(Image):
         elif(instructionStage == "Stage 6.3"):
             self.popup = Popup(title=instructionStage+' Validation',size_hint=(None, None), size=(400, 400))
             grid1 = GridLayout(rows=2,cols=1)
-            grid1.add_widget(Label(text="Did you see the Robot Turret perform calibration movements?"))
+            grid1.add_widget(Label(text="Did you see the arms of the Robot Turret\n rotating 180 degrees?"))
             grid2 = GridLayout(rows=1,cols=2)
             grid2.add_widget(yesButton)
             grid2.add_widget(noButton)
@@ -547,10 +547,15 @@ class KivyCamera(Image):
 
 
     
-    def noCallback(self,label,instance):
+    def noCallback(self,label,instructionStage, instance):
         self.popup.dismiss()
         self.missedValidations += 1
-        label.text += "Validation Unsuccessful\n\n"
+        if instructionStage == "Stage 6.1":
+            label.text += "Validation Unsuccessful\n\n1. Check to see if cable is securely attached.\n2. Use multimeter to check if cable and board isn't faulty.\n"    
+        elif instructionStage == "Stage 6.2":
+            label.text += "Validation Unsuccessful\n\n1. Check to see if cable is securely attached.\n2. Check device manager to determine if computer recognizes cable.\n3. Update drivers if necessary.\n"
+        else:
+            label.text += "Validation Unsuccessful\n\n1. Check the motor cables to see if it is securely attached.\n2. Use multimeter to determine if there exist any faulty cables.\n"
             
 ######################################
 class CreateAccountWindow(Screen):
@@ -565,7 +570,7 @@ class CreateAccountWindow(Screen):
 
                 self.reset()
 
-                sm.current = "login"
+                app.sm.current = "login"
             else:
                 invalidForm()
         else:
