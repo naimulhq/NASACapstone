@@ -5,9 +5,9 @@
 **Group Members:** <br/>
 * Naimul Hoque
 * Rishit Arora
+* Abel Semma
 * Oles Bober
 * Edwin Varela
-* Abel Semma
 
 **Professor and TA:** <br/>
 * Professor Yogananda Isukapalli
@@ -29,21 +29,21 @@ NASA astronauts perform maintenance and assembly procedures, which contain many 
 
 **PhantomX Robotic Turret:** To test out our system, we will be assembling a PhantomX Robotic Turret. This turret contains various parts of all shapes and sizes that our system will be responsible for validating.
 
-# Identification of Roles 
+# Roles 
 
-**Rishit Arora**
-
-
-**Oles Bober**
+**Naimul Hoque** - Team Leader
 
 
-**Naimul Hoque**
+**Rishit Arora** - Wireless Interface Design
 
 
-**Edwin Varela**
+**Abel Semma** - User Interface Design
 
 
-**Abel Semma**
+**Oles Bober** - Model Training/Procedure Design
+
+
+**Edwin Varela** - Model Training/Procedure Design
 
 
 # Installation and Setup Guide.
