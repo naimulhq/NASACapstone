@@ -46,7 +46,7 @@ NASA astronauts perform maintenance and assembly procedures, which contain many 
 **Edwin Varela** - Model Training/Procedure Design
 
 
-# Installation and Setup Guide.
+# Installation and Setup Guide. (NOT IMPLEMENTED)
 
 To set up our project on your Jetson Nano, you will need to run the following commands:
 ```
